@@ -10,3 +10,4 @@ router.get('/', (req, res) => {
 
 router.post('/register', Controller.register)
 router.post('/login', Controller.login)
+router.get('/customers', Controller.showAllCustomer) //for debug

@@ -52,5 +52,18 @@ class Controller{
       next(err)
     }
   }
+
+  static async showAllCustomer (req, res, next) {
+    try{
+      const customers = await Customer.findAll({
+        attributes: { exclude:['password', 'createdAt', 'updatedAt'] }
+      })
+
+      res.status (200).json(customers)
+    } catch (err) {
+      console.log(err, "<<< Error show all customer");
+      next(err)
+    }
+  }
 }
 module.exports = Controller
