@@ -10,5 +10,6 @@ router.get('/', (req, res) => {
 })
 
 router.post('/notifications', Controller.createNotification) // admin
+router.get('/notifications', Controller.showAllNotification) 
 
 router.use(authentication)

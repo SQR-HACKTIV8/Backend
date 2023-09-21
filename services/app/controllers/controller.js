@@ -15,6 +15,19 @@ class Controller {
       next(err)
     }
   }
+
+  static async showAllNotification(req, res, next) {
+    try{
+      const notifications = await Notification.findAll({
+        attributes: { exclude:['createdAt', 'updatedAt'] }
+      })
+
+      res.status (200).json(notifications)
+    } catch (err) {
+      console.log(err, "<<< Error show all notification");
+      next(err)
+    }
+  }
 }
 
 module.exports = Controller
