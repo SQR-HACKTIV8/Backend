@@ -1,6 +1,6 @@
 const { comparePassword } = require("../helpers/bcryptjs")
 const { createToken } = require("../helpers/jwt")
-const { Category, Qurban, Customer, Notification } = require("../models");
+const { Category, Qurban, Customer, Notification, ReforestationDonation } = require("../models");
 const { Op } = require("sequelize");
 
 class Controller {
@@ -263,6 +263,19 @@ class Controller {
       res.status (200).json(notifications)
     } catch (err) {
       console.log(err, "<<< Error show all notification");
+      next(err)
+    }
+  }
+
+  static async showAllReforestationDonation(req, res, next) {
+    try{
+      const reforestationDonations = await ReforestationDonation.findAll({
+        attributes: { exclude:['createdAt', 'updatedAt'] }
+      })
+
+      res.status (200).json(reforestationDonations)
+    } catch (err) {
+      console.log(err, "<<< Error show all reforestation donation");
       next(err)
     }
   }

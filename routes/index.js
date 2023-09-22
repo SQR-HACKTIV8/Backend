@@ -24,4 +24,6 @@ router.use(authentication)
 router.post("/qurbans", Controller.addQurban);
 router.patch("/qurbans/:id", Controller.updateQurban);
 
+router.get("/reforestation-donations", Controller.showAllReforestationDonation)
+
 module.exports = router;
