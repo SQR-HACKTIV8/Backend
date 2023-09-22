@@ -1,70 +1,85 @@
-const { comparePassword } = require("../helpers/bcryptjs")
-const { createToken } = require("../helpers/jwt")
-const { Category, Qurban, Customer, Notification, OrderHistory } = require("../models");
+const { comparePassword } = require("../helpers/bcryptjs");
+const { createToken } = require("../helpers/jwt");
+const {
+  Category,
+  Qurban,
+  Customer,
+  Notification,
+  OrderHistory,
+  Order,
+} = require("../models");
 const { Op } = require("sequelize");
-const redis = require("../config/redis")
+const redis = require("../config/redis");
 
 class Controller {
-  static async register(req, res, next){
+  static async register(req, res, next) {
     try {
-      let {username, email, password, phoneNumber, imageUrl} = req.body
-      const customer = await Customer.create({username, email, password, phoneNumber, imageUrl})
+      let { username, email, password, phoneNumber, imageUrl } = req.body;
+      const customer = await Customer.create({
+        username,
+        email,
+        password,
+        phoneNumber,
+        imageUrl,
+      });
       let data = {
         id: customer.id,
-        username: customer.username, 
+        username: customer.username,
         email: customer.email,
-      }
-      res.status (201).json(data)
+      };
+      res.status(201).json(data);
     } catch (err) {
       console.log(err, "<<< Error registration");
-      next(err)
+      next(err);
     }
   }
 
-  static async login (req, res, next) {
+  static async login(req, res, next) {
     try {
-      let {email, password} = req.body
+      let { email, password } = req.body;
       if (!email) {
-        throw ({name: "dataEmpty", message: "Email is required!"})
-      } 
+        throw { name: "dataEmpty", message: "Email is required!" };
+      }
       if (!password) {
-        throw ({name: "dataEmpty", message: "Password is required!"})
+        throw { name: "dataEmpty", message: "Password is required!" };
       }
 
-      const customer = await Customer.findOne({where: {email}})
+      const customer = await Customer.findOne({ where: { email } });
 
       if (!customer) {
-        throw ({name: "unauthorize"})
+        throw { name: "unauthorize" };
       }
 
-      const validPassword = comparePassword(password, customer.password)
+      const validPassword = comparePassword(password, customer.password);
       if (!validPassword) {
-        throw ({name: "unauthorize"})
+        throw { name: "unauthorize" };
       }
       const payload = {
-        id: customer.id
-      }
-      const access_token = createToken(payload)
+        id: customer.id,
+      };
+      const access_token = createToken(payload);
 
-      res.status (200).json({
-        access_token, username: customer.username, email: customer.email
-      })
+      res.status(200).json({
+        access_token,
+        username: customer.username,
+        email: customer.email,
+      });
     } catch (err) {
       console.log(err, "<<< Error login");
-      next(err)
+      next(err);
     }
   }
 
-  static async showAllCustomer (req, res, next) {
-    try{
+  static async showAllCustomer(req, res, next) {
+    try {
       const customers = await Customer.findAll({
-        attributes: { exclude:['password', 'createdAt', 'updatedAt'] }
-      })
+        attributes: { exclude: ["password", "createdAt", "updatedAt"] },
+      });
 
-      res.status (200).json(customers)
+      res.status(200).json(customers);
     } catch (err) {
       console.log(err, "<<< Error show all customer");
-      next(err)
+      next(err);
     }
   }
 
@@ -239,74 +254,141 @@ class Controller {
       next(error); // 404 & 403
     }
   }
-  
-  static async createNotification(req, res, next){
+
+  static async createNotification(req, res, next) {
     try {
-      let {title, imageUrl, description} = req.body
-      const notification = await Notification.create({title, description})
+      let { title, imageUrl, description } = req.body;
+      const notification = await Notification.create({ title, description });
       let data = {
         id: notification.id,
-        title: notification.title
-      }
-      res.status (201).json(data)
+        title: notification.title,
+      };
+      res.status(201).json(data);
     } catch (err) {
       console.log(err, "<<< Error create notification");
-      next(err)
+      next(err);
     }
   }
 
   static async showAllNotification(req, res, next) {
-    try{
+    try {
       const notifications = await Notification.findAll({
-        attributes: { exclude:['createdAt', 'updatedAt'] }
-      })
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+      });
 
-      res.status (200).json(notifications)
+      res.status(200).json(notifications);
     } catch (err) {
       console.log(err, "<<< Error show all notification");
-      next(err)
+      next(err);
     }
   }
-  
-  static async addOrderHistory (req, res, next){
+
+  static async addOrderHistory(req, res, next) {
     try {
-      let {title, description, OrderDetailId, imageUrl, videoUrl} = req.body
-      const orderHistory = await OrderHistory.create({title, description, OrderDetailId, imageUrl, videoUrl})
+      let { title, description, OrderDetailId, imageUrl, videoUrl } = req.body;
+      const orderHistory = await OrderHistory.create({
+        title,
+        description,
+        OrderDetailId,
+        imageUrl,
+        videoUrl,
+      });
       let data = {
         id: orderHistory.id,
-        title: orderHistory.title, 
+        title: orderHistory.title,
         OrderDetailId: orderHistory.OrderDetailId,
-      }
+      };
 
       await redis.del("sqr_orderHistories");
 
-      res.status (201).json(data)
+      res.status(201).json(data);
     } catch (err) {
       console.log(err, "<<< Error add order history");
-      next(err)
+      next(err);
     }
   }
 
   static async showAllOrderHistory(req, res, next) {
-    try{
-      const orderHistoryCache = await redis.get("sqr_orderHistories")
-   
-      if (orderHistoryCache){
-        const data = JSON.parse(orderHistoryCache)
-        return res.status (200).json(data)
+    try {
+      const orderHistoryCache = await redis.get("sqr_orderHistories");
+
+      if (orderHistoryCache) {
+        const data = JSON.parse(orderHistoryCache);
+        return res.status(200).json(data);
       }
       const orderHistories = await OrderHistory.findAll({
-        attributes: { exclude:['createdAt', 'updatedAt'] }
-      })
-      const stringOrderHistories = JSON.stringify(orderHistories)
-      await redis.set("sqr_orderHistories", stringOrderHistories)
+        attributes: { exclude: ["createdAt", "updatedAt"] },
+      });
+      const stringOrderHistories = JSON.stringify(orderHistories);
+      await redis.set("sqr_orderHistories", stringOrderHistories);
 
-      res.status (200).json(orderHistories)
+      res.status(200).json(orderHistories);
     } catch (err) {
       console.log(err, "<<< Error show all order history");
-      next(err)
+      next(err);
+    }
+  }
+
+  static async showAllOrders(req, res, next) {
+    try {
+      const orders = await Order.findAll();
+      res.status(200).json(orders);
+    } catch (error) {
+      console.log(err, "<<< Error show all orders");
+      next(err);
+    }
+  }
+
+  static async addOrder(req, res, next) {
+    try {
+      const { CustomerId, totalPrice, totalQuantity, OrderId } = req.body;
+
+      const newOrder = await Order.create({
+        CustomerId,
+        statusPayment: false,
+        totalPrice,
+        totalQuantity,
+        OrderId,
+      });
+
+      const qurban = await Qurban.findByPk(OrderId);
+      if (qurban) {
+        await qurban.update({ isBooked: true });
+      }
+
+      res.status(201).json({
+        message: `Order with id ${newOrder.id} has been created`,
+        newOrder,
+      });
+    } catch (error) {
+      console.log(err, "<<< Error add order");
+      next(err);
+    }
+  }
+
+  static async deleteOrder(req, res, next) {
+    try {
+      const orderId = req.params.id;
+      const order = await Order.findByPk(orderId);
+
+      if (!order) {
+        throw { name: "orderNotFound" };
+      }
+
+      await Order.destroy({ where: { id: orderId } });
+
+      await Qurban.update(
+        { isBooked: false },
+        { where: { id: order.OrderId } }
+      );
+
+      res.status(200).json({
+        message: `Order with id ${orderId} deleted succesfully.`,
+      });
+    } catch (error) {
+      console.log(err, "<<< Error delete order");
+      next(err);
     }
   }
 }
 module.exports = Controller;
-
