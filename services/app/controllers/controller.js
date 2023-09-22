@@ -3,7 +3,7 @@ const { Notification } = require("../models")
 class Controller {
   static async createNotification(req, res, next){
     try {
-      let {title, description} = req.body
+      let {title, imageUrl, description} = req.body
       const notification = await Notification.create({title, description})
       let data = {
         id: notification.id,

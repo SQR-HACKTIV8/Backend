@@ -22,6 +22,18 @@ module.exports = (sequelize, DataTypes) => {
         }
       }
     },
+    imageUrl: {
+      type: DataTypes.TEXT,
+      allowNull: false,
+      validate: {
+        notEmpty: {
+          msg: "Image url is required!"
+        },
+        notNull: {
+          msg: "Image url is required!"
+        }
+      }
+    },
     description: {
       type: DataTypes.TEXT,
       allowNull: false,
