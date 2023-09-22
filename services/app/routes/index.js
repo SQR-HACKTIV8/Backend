@@ -12,6 +12,9 @@ router.post("/categories", Controller.addCategory);
 router.get("/qurbans", Controller.showAllQurbans);
 router.get("/qurbans", Controller.showAllQurbans);
 
+router.post('/notifications', Controller.createNotification) // admin
+router.get('/notifications', Controller.showAllNotification) 
+
 router.use(authentication)
 
 router.post("/qurbans", Controller.addQurban);
