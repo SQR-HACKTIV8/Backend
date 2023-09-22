@@ -4,7 +4,12 @@ function errorHandler(err, req, res, next) {
 
   console.log(err, "<< Error handler App");
 
-  res.status(status).json({ message });
+  if (err.name === "unauthenticated" || err.name === "JsonWebTokenError") {
+    status = 401
+    message = "Invalid token"
+  }
+
+  res.status(status).json({message})
 }
 
 module.exports = errorHandler;
