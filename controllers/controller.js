@@ -1,7 +1,8 @@
 const { comparePassword } = require("../helpers/bcryptjs")
 const { createToken } = require("../helpers/jwt")
-const { Category, Qurban, Customer, Notification } = require("../models");
+const { Category, Qurban, Customer, Notification, OrderHistory } = require("../models");
 const { Op } = require("sequelize");
+const redis = require("../config/redis")
 
 class Controller {
   static async register(req, res, next){
@@ -263,6 +264,46 @@ class Controller {
       res.status (200).json(notifications)
     } catch (err) {
       console.log(err, "<<< Error show all notification");
+      next(err)
+    }
+  }
+  
+  static async addOrderHistory (req, res, next){
+    try {
+      let {title, description, OrderDetailId, imageUrl, videoUrl} = req.body
+      const orderHistory = await OrderHistory.create({title, description, OrderDetailId, imageUrl, videoUrl})
+      let data = {
+        id: orderHistory.id,
+        title: orderHistory.title, 
+        OrderDetailId: orderHistory.OrderDetailId,
+      }
+
+      await redis.del("sqr_orderHistories");
+
+      res.status (201).json(data)
+    } catch (err) {
+      console.log(err, "<<< Error add order history");
+      next(err)
+    }
+  }
+
+  static async showAllOrderHistory(req, res, next) {
+    try{
+      const orderHistoryCache = await redis.get("sqr_orderHistories")
+   
+      if (orderHistoryCache){
+        const data = JSON.parse(orderHistoryCache)
+        return res.status (200).json(data)
+      }
+      const orderHistories = await OrderHistory.findAll({
+        attributes: { exclude:['createdAt', 'updatedAt'] }
+      })
+      const stringOrderHistories = JSON.stringify(orderHistories)
+      await redis.set("sqr_orderHistories", stringOrderHistories)
+
+      res.status (200).json(orderHistories)
+    } catch (err) {
+      console.log(err, "<<< Error show all order history");
       next(err)
     }
   }
