@@ -3,6 +3,7 @@ const {
   Model
 } = require('sequelize');
 const { hashPassword } = require('../helpers/bcryptjs');
+
 module.exports = (sequelize, DataTypes) => {
   class Customer extends Model {
     static associate(models) {

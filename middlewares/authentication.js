@@ -1,4 +1,4 @@
-const { Customer } = require('../../customers/models')
+const { Customer } = require('../models')
 const { verifyToken } = require('../helpers/jwt')
 
 async function authentication (req, res, next) {
@@ -14,7 +14,7 @@ async function authentication (req, res, next) {
       throw ({name: "unauthenticated"})
     }
 
-    req.user = {
+    req.customer = {
       id: findCustomer.id,
       email: findCustomer.email,
     }
