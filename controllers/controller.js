@@ -282,6 +282,19 @@ class Controller {
       next(err)
     }
   }
+
+  static async showAllOrderHistory(req, res, next) {
+    try{
+      const orderHistories = await OrderHistory.findAll({
+        attributes: { exclude:['createdAt', 'updatedAt'] }
+      })
+
+      res.status (200).json(orderHistories)
+    } catch (err) {
+      console.log(err, "<<< Error show all order history");
+      next(err)
+    }
+  }
 }
 module.exports = Controller;
 
