@@ -1,15 +1,24 @@
-const Controller = require('../controllers/controller')
+const router = require('express').Router()
+const Controller = require("../controllers/controller");
 const { authentication } = require('../middlewares/authentication')
 
-const router = require('express').Router()
+router.get("/", (req, res) => {
+  res.send("Hello from App-services!");
+});
 
-module.exports = router
+router.get("/categories", Controller.showAllCategories);
+router.post("/categories", Controller.addCategory);
 
-router.get('/', (req, res) => {
-  res.send('Hello from App-services!')
-})
+router.get("/qurbans", Controller.showAllQurbans);
+router.get("/qurbans", Controller.showAllQurbans);
 
 router.post('/notifications', Controller.createNotification) // admin
 router.get('/notifications', Controller.showAllNotification) 
 
 router.use(authentication)
+
+router.post("/qurbans", Controller.addQurban);
+router.get("/qurbans/:id", Controller.showDetailQurban);
+router.patch("/qurbans/:id", Controller.updateQurban);
+
+module.exports = router;
