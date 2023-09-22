@@ -1,6 +1,6 @@
 const { comparePassword } = require("../helpers/bcryptjs")
 const { createToken } = require("../helpers/jwt")
-const { Category, Qurban, Customer, Notification } = require("../models");
+const { Category, Qurban, Customer, Notification, OrderHistory } = require("../models");
 const { Op } = require("sequelize");
 
 class Controller {
@@ -263,6 +263,22 @@ class Controller {
       res.status (200).json(notifications)
     } catch (err) {
       console.log(err, "<<< Error show all notification");
+      next(err)
+    }
+  }
+  
+  static async addOrderHistory (req, res, next){
+    try {
+      let {title, description, OrderDetailId, imageUrl, videoUrl} = req.body
+      const orderHistory = await OrderHistory.create({title, description, OrderDetailId, imageUrl, videoUrl})
+      let data = {
+        id: orderHistory.id,
+        title: orderHistory.title, 
+        OrderDetailId: orderHistory.OrderDetailId,
+      }
+      res.status (201).json(data)
+    } catch (err) {
+      console.log(err, "<<< Error add order history");
       next(err)
     }
   }

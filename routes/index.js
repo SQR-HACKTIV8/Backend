@@ -24,4 +24,6 @@ router.use(authentication)
 router.post("/qurbans", Controller.addQurban);
 router.patch("/qurbans/:id", Controller.updateQurban);
 
+router.post('/order_histories', Controller.addOrderHistory) // admin
+
 module.exports = router;
