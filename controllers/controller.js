@@ -332,7 +332,11 @@ class Controller {
 
   static async showAllOrders(req, res, next) {
     try {
-      const orders = await Order.findAll();
+      const orders = await Order.findAll({
+        where : {
+          CustomerId: req.customer.id
+        }
+      });
       res.status(200).json(orders);
     } catch (error) {
       console.log(err, "<<< Error show all orders");
@@ -343,18 +347,18 @@ class Controller {
   static async addOrder(req, res, next) {
     try {
       let data = req.body;
-      data = [
-        {
-          QurbanId: null,
-          treeType: "Acacia",
-          onBehalfOf: "Sinta, Dewi, Agus, Rizky"
-        },
-        {
-          QurbanId: '',
-          treeType: "Pine",
-          onBehalfOf: "Alm. Rudi bin Ridho, Alm. Sita binti Rizky"
-        }
-      ]
+      // data = [
+      //   {
+      //     QurbanId: 5,
+      //     treeType: "Acacia",
+      //     onBehalfOf: "Sinta, Dewi, Agus, Rizky"
+      //   },
+      //   {
+      //     QurbanId: 6,
+      //     treeType: "Pine",
+      //     onBehalfOf: "Alm. Rudi bin Ridho, Alm. Sita binti Rizky"
+      //   }
+      // ] //data dummy for testing
       const date = new Date().toISOString().split("-").join("").split(":").join("").split(".").join("")
       const OrderId = "SQR" + date + Math.floor(1000 + Math.random() * 1000)
       let reforestationData = []
