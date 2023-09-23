@@ -29,7 +29,7 @@ module.exports = {
       },
       OrderId: {
         primaryKey: true,
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
       },
       createdAt: {
         allowNull: false,

@@ -7,6 +7,7 @@ const {
   Notification,
   OrderHistory,
   Order,
+  OrderDetail
 } = require("../models");
 const { Op } = require("sequelize");
 const redis = require("../config/redis");
@@ -341,28 +342,96 @@ class Controller {
 
   static async addOrder(req, res, next) {
     try {
-      const { CustomerId, totalPrice, totalQuantity, OrderId } = req.body;
+      let data = req.body;
+      data = [
+        {
+          QurbanId: null,
+          treeType: "Acacia",
+          onBehalfOf: "Sinta, Dewi, Agus, Rizky"
+        },
+        {
+          QurbanId: '',
+          treeType: "Pine",
+          onBehalfOf: "Alm. Rudi bin Ridho, Alm. Sita binti Rizky"
+        }
+      ]
+      const date = new Date().toISOString().split("-").join("").split(":").join("").split(".").join("")
+      const OrderId = "SQR" + date + Math.floor(1000 + Math.random() * 1000)
+      let reforestationData = []
+      let qurbanId = []
+      data.map(el => {
+        reforestationData.push({
+          treeType: el.treeType,
+          quantity: 1,
+          createdAt : new Date(),
+          updatedAt : new Date()
+        })
+        qurbanId.push (el.QurbanId)
+        delete el.treeType
+        el.OrderId = OrderId
+        el.createdAt = el.updatedAt = new Date()
+        return el
+      })
+
+      if (!qurbanId[0]){
+        throw ({name: "notFound", message: "Qurban is required!"})
+      }
 
       const newOrder = await Order.create({
-        CustomerId,
-        statusPayment: false,
-        totalPrice,
-        totalQuantity,
+        CustomerId: req.customer.id,
+        totalPrice: 0,
+        totalQuantity: data.length,
         OrderId,
       });
 
-      const qurban = await Qurban.findByPk(OrderId);
-      if (qurban) {
-        await qurban.update({ isBooked: true });
-      }
+      const addOrderDetails = await OrderDetail.bulkCreate(data)
+      const orderDetails = await OrderDetail.findAll({
+        include: {
+          model: Qurban,
+          attributes: ['price']
+        },
+        where: {
+          OrderId
+        },
+        attributes:['id']
+      });
+      
+      let orderDetailsId = []
+      let totalPrice = 0
+      orderDetails.forEach(el => {
+        console.log(el.dataValues, "<<< ini find All")
+        orderDetailsId.push(el.dataValues.id)
+        totalPrice += el.dataValues.Qurban.dataValues.price  
+      });
+
+      reforestationData.map((el, i) => {
+        orderDetailsId.forEach((e, y) => {
+          if (i === y){
+            el.OrderDetailId = e
+          }
+        })
+        return el
+      })
+      const order = await Order.update ({totalPrice},{
+        where: {OrderId}
+      })
+      const findNewOrder = await Order.findOne ({
+        where: {OrderId}
+      })
+      console.log(findNewOrder, OrderId,"<<", qurbanId, "<<<<<<<<")
+      await Qurban.update({ isBooked: true }, {
+        where: {
+          id: qurbanId
+        }
+      });
 
       res.status(201).json({
         message: `Order with id ${newOrder.id} has been created`,
-        newOrder,
+        findNewOrder,
       });
     } catch (error) {
-      console.log(err, "<<< Error add order");
-      next(err);
+      console.log(error, "<<< Error add order");
+      next(error);
     }
   }
 
