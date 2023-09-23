@@ -463,5 +463,32 @@ class Controller {
       next(err);
     }
   }
+
+  static async showDetailOrder(req, res, next) {
+    try {
+      const {id} = req.params
+      const order = await Order.findOne({
+        attributes: {exclude: ['createdAt', 'updatedAt']},
+        where: {
+          id,
+          CustomerId: req.customer.id
+        }
+      });
+      if (!order){
+        throw ({name: "notFound", message: "Order not found!"})
+      }
+      const OrderId = order.dataValues.OrderId
+      const orderDetails = await OrderDetail.findAll({
+        attributes: {exclude: ['createdAt', 'updatedAt']},
+        where: {
+          OrderId
+        }
+      })
+      res.status(200).json({order, orderDetails});
+    } catch (error) {
+      console.log(error, "<<< Error show detail from order");
+      next(error);
+    }
+  }
 }
 module.exports = Controller;

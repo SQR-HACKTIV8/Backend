@@ -30,5 +30,6 @@ router.get("/order_histories", Controller.showAllOrderHistory);
 router.get("/orders", Controller.showAllOrders);
 router.post("/orders", Controller.addOrder);
 router.delete("/orders/:id", Controller.deleteOrder);
+router.get("/orders/:id", Controller.showDetailOrder);
 
 module.exports = router;
