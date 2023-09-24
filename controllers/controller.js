@@ -78,10 +78,20 @@ class Controller {
 
   static async showAllCategories(req, res, next) {
     try {
+      const categoriesCache = await redis.get("sqr_categories");
+
+      if (categoriesCache) {
+        const data = JSON.parse(categoriesCache);
+        return res.status(200).json(data);
+      }
       const categories = await Category.findAll();
+
+      const stringCategories = JSON.stringify(categories);
+      await redis.set("sqr_categories", stringCategories);
+
       res.status(200).json(categories);
     } catch (error) {
-      console.log(error);
+      console.log(error, "<<< Error show all category");
       next(error);
     }
   }
@@ -94,12 +104,14 @@ class Controller {
         name,
       });
 
+      await redis.del("sqr_categories");
+
       res.status(201).json({
         message: `Category with id ${newCategory.id} has been created`,
         newCategory,
       });
     } catch (error) {
-      console.log(error);
+      console.log(error, "<<< Error add category");
       next(error);
     }
   }
@@ -128,7 +140,7 @@ class Controller {
 
       res.status(200).json(qurbans);
     } catch (error) {
-      console.log(error);
+      console.log(error, "<<< Error show all qurban");
       next(error);
     }
   }
@@ -141,13 +153,13 @@ class Controller {
         include: [Category],
       });
 
-      if (!qurban) {
-        throw { name: "qurbanNotFound" };
+      if (!qurban){
+        throw ({name: "notFound", message: "Qurban not found!"})
       }
 
       res.status(200).json(qurban);
     } catch (error) {
-      console.log(error);
+      console.log(error, "<<< Error show qurban by id");
       next(error);
     }
   }
@@ -169,8 +181,8 @@ class Controller {
 
       const category = await Category.findByPk(CategoryId);
 
-      if (!category) {
-        throw { name: "categoryNotFound", error: "Category not found" };
+      if (!category){
+        throw ({name: "notFound", message: "Category not found!"})
       }
 
       const newQurban = await Qurban.create({
@@ -192,7 +204,7 @@ class Controller {
         newQurban,
       });
     } catch (error) {
-      console.log(error);
+      console.log(error, "<<< Error add qurban");
       next(error);
     }
   }
@@ -216,8 +228,8 @@ class Controller {
 
       const qurban = await Qurban.findByPk(id);
 
-      if (!qurban) {
-        throw { name: "qurbanNotFound" };
+      if (!qurban){
+        throw ({name: "notFound", message: "Qurban not found!"})
       }
 
       let updatedQurban = await Qurban.update(
@@ -243,19 +255,20 @@ class Controller {
         .status(200)
         .json({ message: "Qurban updated successfully", updatedQurban });
     } catch (error) {
-      console.log(error);
-      next(error); // 404 & 403
+      console.log(error, "<<< Error update qurban detail by id");
+      next(error);
     }
   }
 
   static async createNotification(req, res, next) {
     try {
       let { title, imageUrl, description } = req.body;
-      const notification = await Notification.create({ title, description });
+      const notification = await Notification.create({ title, imageUrl, description });
       let data = {
         id: notification.id,
         title: notification.title,
       };
+      await redis.del("sqr_notifcations");
       res.status(201).json(data);
     } catch (err) {
       console.log(err, "<<< Error create notification");
@@ -265,9 +278,18 @@ class Controller {
 
   static async showAllNotification(req, res, next) {
     try {
+      const notificationsCache = await redis.get("sqr_notifcations");
+
+      if (notificationsCache) {
+        const data = JSON.parse(notificationsCache);
+        return res.status(200).json(data);
+      }
       const notifications = await Notification.findAll({
         attributes: { exclude: ["createdAt", "updatedAt"] },
       });
+
+      const stringNotifications = JSON.stringify(notifications);
+      await redis.set("sqr_notifications", stringNotifications);
 
       res.status(200).json(notifications);
     } catch (err) {
@@ -337,11 +359,22 @@ class Controller {
 
   static async showAllOrders(req, res, next) {
     try {
+      const orderCache = await redis.get("sqr_orders");
+
+      if (orderCache) {
+        const data = JSON.parse(orderCache);
+        return res.status(200).json(data);
+      }
+
       const orders = await Order.findAll({
         where : {
           CustomerId: req.customer.id
         }
       });
+
+      const stringOrders = JSON.stringify(orders);
+      await redis.set("sqr_orders", stringOrders);
+
       res.status(200).json(orders);
     } catch (error) {
       console.log(err, "<<< Error show all orders");
@@ -352,6 +385,7 @@ class Controller {
   static async addOrder(req, res, next) {
     try {
       let data = req.body;
+      
       // data = [
       //   {
       //     QurbanId: 19,
@@ -440,6 +474,9 @@ class Controller {
         OrderDetailId: orderDetailsId[0]
       })
 
+      await redis.del("sqr_orders");
+      await redis.del("sqr_orderHistories");
+      
       res.status(201).json({
         message: `Order with id ${newOrder.id} has been created`,
         findNewOrder,
@@ -466,7 +503,7 @@ class Controller {
 
       const orderDetails = await OrderDetail.findAll({
         where: {
-          OrderId: order.OrderId
+          OrderId: order.OrderId,
         }
       })
       const sampleOrderDetailId = orderDetails[0].dataValues.id
@@ -483,7 +520,10 @@ class Controller {
       await Qurban.update(
         { isBooked: false },
         { where: { id: qurbansId } }
-      );
+      )
+
+      await redis.del("sqr_orders");
+      await redis.del("sqr_orderHistories");
 
       res.status(200).json({
         message: `Order with id ${order.OrderId} canceled succesfully.`,

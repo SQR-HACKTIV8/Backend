@@ -14,17 +14,18 @@ router.get("/categories", Controller.showAllCategories);
 router.post("/categories", Controller.addCategory);
 
 router.post("/notifications", Controller.createNotification); // admin
-router.get("/notifications", Controller.showAllNotification);
+
+router.get("/reforestation-donations", Controller.showAllReforestationDonation) // admin
 
 router.get("/qurbans", Controller.showAllQurbans);
 router.get("/qurbans/:id", Controller.showDetailQurban);
 
 router.use(authentication);
 
-router.post("/qurbans", Controller.addQurban);
-router.patch("/qurbans/:id", Controller.updateQurban);
+router.post("/qurbans", Controller.addQurban); //admin
+router.put("/qurbans/:id", Controller.updateQurban); //admin
 
-router.get("/reforestation-donations", Controller.showAllReforestationDonation) // admin
+router.get("/notifications", Controller.showAllNotification);
 
 router.post('/order_histories', Controller.addOrderHistory) // admin
 router.get('/order_histories', Controller.showAllOrderHistory)
