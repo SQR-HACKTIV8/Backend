@@ -35,4 +35,6 @@ router.post("/orders", Controller.addOrder);
 router.delete("/orders/:id", Controller.deleteOrder);
 router.get("/orders/:id", Controller.showDetailOrder);
 
+router.post("/token-midtrans", Controller.generateTokenMidtarns);
+
 module.exports = router;

@@ -3,6 +3,7 @@ const { createToken } = require("../helpers/jwt")
 const { Category, Qurban, Customer, Notification, OrderHistory, Order, OrderDetail, ReforestationDonation } = require("../models");
 const { Op } = require("sequelize");
 const redis = require("../config/redis");
+const midtransClient = require("midtrans-client");
 
 class Controller {
   static async register(req, res, next) {
@@ -562,6 +563,45 @@ class Controller {
     } catch (error) {
       console.log(error, "<<< Error show detail from order");
       next(error);
+    }
+  }
+
+  static async generateTokenMidtarns(req, res, next){
+    try {
+      const {OrderId, totalPrice} = req.body
+      const findOrder = await Order.findOne({
+        where: {
+          OrderId
+        }
+      })
+      console.log(findOrder.dataValues)
+      if (findOrder.statusPayment){
+        throw ({name: 'found', message: `Order with id ${OrderId} already paid`})
+      }
+      let snap = new midtransClient.Snap({
+              isProduction : false,
+              serverKey : process.env.MIDTRANS_KEY
+          });
+
+      let parameter = {
+          "transaction_details": {
+              "order_id": OrderId,
+              "gross_amount": totalPrice
+          },
+          "credit_card":{
+              "secure" : true
+          },
+          "customer_details": {
+              "email": req.customer.email,
+          }
+      };
+
+      const midtrans_token = await snap.createTransaction(parameter)
+      res.status(201).json(midtrans_token)
+
+    } catch (error) {
+      console.log(error, "<<< Error generate midtrans token");
+      next(error)
     }
   }
 }

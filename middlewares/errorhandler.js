@@ -10,6 +10,9 @@ function errorHandler(err, req, res, next) {
   } else if (err.name === "dataEmpty"){
     status = 400
     message = err.message
+  } else if (err.name === "found"){
+    status = 400
+    message = err.message
   } else if (err.name === "unauthenticated" || err.name === "JsonWebTokenError") {
     status = 401
     message = "Invalid token"
