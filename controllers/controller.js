@@ -4,6 +4,7 @@ const { Category, Qurban, Customer, Notification, OrderHistory, Order, OrderDeta
 const { Op } = require("sequelize");
 const redis = require("../config/redis");
 const midtransClient = require("midtrans-client");
+const sendEmailNodemailer = require("../helpers/nodemailer");
 
 class Controller {
   static async register(req, res, next) {
@@ -574,7 +575,7 @@ class Controller {
           OrderId
         }
       })
-      console.log(findOrder.dataValues)
+
       if (findOrder.statusPayment){
         throw ({name: 'found', message: `Order with id ${OrderId} already paid`})
       }
@@ -595,12 +596,57 @@ class Controller {
               "email": req.customer.email,
           }
       };
-
+      
       const midtrans_token = await snap.createTransaction(parameter)
       res.status(201).json(midtrans_token)
 
     } catch (error) {
       console.log(error, "<<< Error generate midtrans token");
+      next(error)
+    }
+  }
+
+  static async updatePaymentStatus (req, res, next) {
+    try {
+    const {id} = req.params
+    const findOrder = await Order.findOne({
+      where: {
+        id,
+        CustomerId: req.customer.id
+      }
+    })
+    if (!findOrder){
+      throw ({name: 'notFound', message: "Order not found!"})
+    } else if (findOrder.statusPayment){
+      throw ({name: 'found', message: `Order with id ${findOrder.OrderId} already paid`})
+    }
+    const orderDetails = await OrderDetail.findAll({
+      where: {
+        OrderId: findOrder.OrderId
+      }
+    })
+    console.log(orderDetails, "<<<<< ini");
+    await Order.update({ statusPayment: true }, {
+      where: {
+        id
+      }
+    })  
+
+    await OrderHistory.create({
+      title: "Order Payment", 
+      description: `Order payment with id ${findOrder.OrderId} has been successfully made`, 
+      OrderDetailId: orderDetails[0].dataValues.id
+    })
+
+    await redis.del("sqr_orders");
+    await redis.del("sqr_orderHistories");
+    
+    res.status(200).json({
+      message: `Payment with order id ${findOrder.OrderId} success`
+    })
+
+    } catch (error) {
+      console.log(error, "<<< Error update status payment");
       next(error)
     }
   }
