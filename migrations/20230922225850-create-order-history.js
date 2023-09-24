@@ -20,10 +20,6 @@ module.exports = {
       OrderDetailId: {
         allowNull: false,
         type: Sequelize.INTEGER,
-        references: {
-          model: "OrderDetails",
-          key: "id",
-        }
       },
       imageUrl: {
         type: Sequelize.TEXT

@@ -5,7 +5,7 @@ const {
 module.exports = (sequelize, DataTypes) => {
   class ReforestationDonation extends Model {
     static associate(models) {
-      
+      ReforestationDonation.belongsTo(models.OrderDetail, { foreignKey: "OrderDetailId" })
     }
   }
   ReforestationDonation.init({
