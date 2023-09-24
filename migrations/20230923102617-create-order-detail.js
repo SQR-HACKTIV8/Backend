@@ -2,34 +2,32 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable('OrderHistories', {
+    await queryInterface.createTable('OrderDetails', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      title: {
-        allowNull: false,
-        type: Sequelize.STRING
+      OrderId: {
+        type: Sequelize.STRING,
+        references: {
+          model: "Orders",
+          key: "OrderId",
+        },
+        onDelete: "cascade",
+        onUpdate: "cascade",
       },
-      description: {
-        allowNull: false,
-        type: Sequelize.TEXT
-      },
-      OrderDetailId: {
-        allowNull: false,
+      QurbanId: {
         type: Sequelize.INTEGER,
         references: {
-          model: "OrderDetails",
+          model: "Qurbans",
           key: "id",
         }
       },
-      imageUrl: {
-        type: Sequelize.TEXT
-      },
-      videoUrl: {
-        type: Sequelize.TEXT
+      onBehalfOf: {
+        allowNull: false,
+        type: Sequelize.STRING
       },
       createdAt: {
         allowNull: false,
@@ -42,6 +40,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('OrderHistories');
+    await queryInterface.dropTable('OrderDetails');
   }
 };

@@ -16,7 +16,10 @@ function errorHandler(err, req, res, next) {
   } else if (err.name === "unauthorize") {
     status = 401
     message = "Invalid email/password"
-  } 
+  } else if (err.name === "notFound") {
+    status = 404
+    message = err.message
+  }
 
   res.status(status).json({message})
 }
