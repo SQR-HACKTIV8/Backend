@@ -24,8 +24,10 @@ router.use(authentication);
 router.post("/qurbans", Controller.addQurban);
 router.patch("/qurbans/:id", Controller.updateQurban);
 
-router.post("/order_histories", Controller.addOrderHistory); // admin
-router.get("/order_histories", Controller.showAllOrderHistory);
+router.get("/reforestation-donations", Controller.showAllReforestationDonation) // admin
+
+router.post('/order_histories', Controller.addOrderHistory) // admin
+router.get('/order_histories', Controller.showAllOrderHistory)
 
 router.get("/orders", Controller.showAllOrders);
 router.post("/orders", Controller.addOrder);

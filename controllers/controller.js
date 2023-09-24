@@ -1,14 +1,6 @@
-const { comparePassword } = require("../helpers/bcryptjs");
-const { createToken } = require("../helpers/jwt");
-const {
-  Category,
-  Qurban,
-  Customer,
-  Notification,
-  OrderHistory,
-  Order,
-  OrderDetail
-} = require("../models");
+const { comparePassword } = require("../helpers/bcryptjs")
+const { createToken } = require("../helpers/jwt")
+const { Category, Qurban, Customer, Notification, OrderHistory, Order, OrderDetail, ReforestationDonation } = require("../models");
 const { Op } = require("sequelize");
 const redis = require("../config/redis");
 
@@ -284,7 +276,20 @@ class Controller {
     }
   }
 
-  static async addOrderHistory(req, res, next) {
+  static async showAllReforestationDonation(req, res, next) {
+    try{
+      const reforestationDonations = await ReforestationDonation.findAll({
+        attributes: { exclude:['createdAt', 'updatedAt'] }
+      })
+
+      res.status (200).json(reforestationDonations)
+    } catch (err) {
+      console.log(err, "<<< Error show all reforestation donation");
+      next(err)
+    }
+  }
+  
+  static async addOrderHistory (req, res, next){
     try {
       let { title, description, OrderDetailId, imageUrl, videoUrl } = req.body;
       const orderHistory = await OrderHistory.create({
