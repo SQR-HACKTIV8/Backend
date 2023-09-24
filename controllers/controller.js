@@ -347,22 +347,22 @@ class Controller {
   static async addOrder(req, res, next) {
     try {
       let data = req.body;
-      data = [
-        {
-          QurbanId: 7,
-          treeType: "Acacia",
-          onBehalfOf: "Sinta, Dewi, Agus, Rizky"
-        },
-        {
-          QurbanId: 8,
-          treeType: "Pine",
-          onBehalfOf: "Alm. Rudi bin Ridho, Alm. Sita binti Rizky"
-        }
-      ] //data dummy for testing
+      // data = [
+      //   {
+      //     QurbanId: 19,
+      //     treeType: "Acacia",
+      //     onBehalfOf: "Sinta, Dewi, Agus, Rizky"
+      //   },
+      //   {
+      //     QurbanId: 20,
+      //     treeType: "Pine",
+      //     onBehalfOf: "Alm. Rudi bin Ridho, Alm. Sita binti Rizky"
+      //   }
+      // ] //data dummy for testing
       const date = new Date().toISOString().split("-").join("").split(":").join("").split(".").join("")
       const OrderId = "SQR" + date + Math.floor(1000 + Math.random() * 1000)
       let reforestationData = []
-      let qurbanId = []
+      let qurbansId = []
       data.map(el => {
         reforestationData.push({
           treeType: el.treeType,
@@ -370,14 +370,14 @@ class Controller {
           createdAt : new Date(),
           updatedAt : new Date()
         })
-        qurbanId.push (el.QurbanId)
+        qurbansId.push (el.QurbanId)
         delete el.treeType
         el.OrderId = OrderId
         el.createdAt = el.updatedAt = new Date()
         return el
       })
 
-      if (!qurbanId[0]){
+      if (!qurbansId[0]){
         throw ({name: "notFound", message: "Qurban is required!"})
       }
 
@@ -388,7 +388,7 @@ class Controller {
         OrderId,
       });
 
-      const addOrderDetails = await OrderDetail.bulkCreate(data)
+      await OrderDetail.bulkCreate(data)
       const orderDetails = await OrderDetail.findAll({
         include: {
           model: Qurban,
@@ -403,7 +403,6 @@ class Controller {
       let orderDetailsId = []
       let totalPrice = 0
       orderDetails.forEach(el => {
-        console.log(el.dataValues, "<<< ini find All")
         orderDetailsId.push(el.dataValues.id)
         totalPrice += el.dataValues.Qurban.dataValues.price  
       });
@@ -416,18 +415,25 @@ class Controller {
         })
         return el
       })
-      const order = await Order.update ({totalPrice},{
+      await Order.update ({totalPrice},{
         where: {OrderId}
       })
+
       const findNewOrder = await Order.findOne ({
         where: {OrderId}
       })
-      console.log(findNewOrder, OrderId,"<<", qurbanId, "<<<<<<<<")
+
       await Qurban.update({ isBooked: true }, {
         where: {
-          id: qurbanId
+          id: qurbansId
         }
       });
+
+      await OrderHistory.create({
+        title: "New Order", 
+        description: `Created new order with id ${OrderId}. Status payment is pending`, 
+        OrderDetailId: orderDetailsId[0]
+      })
 
       res.status(201).json({
         message: `Order with id ${newOrder.id} has been created`,
@@ -459,7 +465,7 @@ class Controller {
         }
       })
       const sampleOrderDetailId = orderDetails[0].dataValues.id
-      const qurbanIds = orderDetails.map(el => {
+      const qurbansId = orderDetails.map(el => {
         return el.QurbanId
       })
 
@@ -471,7 +477,7 @@ class Controller {
       })
       await Qurban.update(
         { isBooked: false },
-        { where: { id: qurbanIds } }
+        { where: { id: qurbansId } }
       );
 
       res.status(200).json({
