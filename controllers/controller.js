@@ -347,18 +347,18 @@ class Controller {
   static async addOrder(req, res, next) {
     try {
       let data = req.body;
-      // data = [
-      //   {
-      //     QurbanId: 5,
-      //     treeType: "Acacia",
-      //     onBehalfOf: "Sinta, Dewi, Agus, Rizky"
-      //   },
-      //   {
-      //     QurbanId: 6,
-      //     treeType: "Pine",
-      //     onBehalfOf: "Alm. Rudi bin Ridho, Alm. Sita binti Rizky"
-      //   }
-      // ] //data dummy for testing
+      data = [
+        {
+          QurbanId: 7,
+          treeType: "Acacia",
+          onBehalfOf: "Sinta, Dewi, Agus, Rizky"
+        },
+        {
+          QurbanId: 8,
+          treeType: "Pine",
+          onBehalfOf: "Alm. Rudi bin Ridho, Alm. Sita binti Rizky"
+        }
+      ] //data dummy for testing
       const date = new Date().toISOString().split("-").join("").split(":").join("").split(".").join("")
       const OrderId = "SQR" + date + Math.floor(1000 + Math.random() * 1000)
       let reforestationData = []
@@ -442,25 +442,44 @@ class Controller {
   static async deleteOrder(req, res, next) {
     try {
       const orderId = req.params.id;
-      const order = await Order.findByPk(orderId);
+      const order = await Order.findOne({
+        where: {
+          id: orderId,
+          CustomerId: req.customer.id
+        }
+      });
 
-      if (!order) {
-        throw { name: "orderNotFound" };
+      if (!order){
+        throw ({name: "notFound", message: "Order not found!"})
       }
 
-      await Order.destroy({ where: { id: orderId } });
+      const orderDetails = await OrderDetail.findAll({
+        where: {
+          OrderId: order.OrderId
+        }
+      })
+      const sampleOrderDetailId = orderDetails[0].dataValues.id
+      const qurbanIds = orderDetails.map(el => {
+        return el.QurbanId
+      })
 
+      await Order.destroy({ where: { id: orderId } });
+      await OrderHistory.create({
+        title: "Order Cancel", 
+        description: `Order with id ${order.OrderId} has been canceled`, 
+        OrderDetailId: sampleOrderDetailId
+      })
       await Qurban.update(
         { isBooked: false },
-        { where: { id: order.OrderId } }
+        { where: { id: qurbanIds } }
       );
 
       res.status(200).json({
-        message: `Order with id ${orderId} deleted succesfully.`,
+        message: `Order with id ${order.OrderId} canceled succesfully.`,
       });
     } catch (error) {
-      console.log(err, "<<< Error delete order");
-      next(err);
+      console.log(error, "<<< Error delete order");
+      next(error);
     }
   }
 
