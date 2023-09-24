@@ -10,7 +10,13 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       OrderDetailId: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: "OrderDetails",
+          key: "id",
+        },
+        onDelete: "cascade",
+        onUpdate: "cascade",
       },
       treeType: {
         allowNull: false,

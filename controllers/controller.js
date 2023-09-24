@@ -130,14 +130,15 @@ class Controller {
         order: [["id", "ASC"]],
         where: {
           name: { [Op.iLike]: `%${search}%` },
+          isBooked: false,
+          quality: 'Premium'
         },
       };
 
       if (filter) {
-        obj.where.categoryId = filter;
+        obj.where.CategoryId = filter;
+        delete obj.where.quality
       }
-
-      console.log(obj, "<<<");
 
       const qurbans = await Qurban.findAll(obj);
 
@@ -152,8 +153,12 @@ class Controller {
     try {
       const { id } = req.params;
 
-      const qurban = await Qurban.findByPk(id, {
+      const qurban = await Qurban.findOne({
         include: [Category],
+        where: {
+          id,
+          isBooked: false
+        }
       });
 
       if (!qurban){
@@ -348,6 +353,16 @@ class Controller {
         return res.status(200).json(data);
       }
       const orderHistories = await OrderHistory.findAll({
+        include: {
+          model: OrderDetail,
+          // include: Order
+          // {
+          //   model: Order,
+          //   // where: {
+          //   //   CustomerId: req.customer.id
+          //   // }
+          // }
+        },
         attributes: { exclude: ["createdAt", "updatedAt"] },
       });
       const stringOrderHistories = JSON.stringify(orderHistories);
@@ -391,14 +406,14 @@ class Controller {
       
       // data = [
       //   {
-      //     QurbanId: 19,
-      //     treeType: "Acacia",
-      //     onBehalfOf: "Sinta, Dewi, Agus, Rizky"
+      //     QurbanId: 5,
+      //     treeType: "Pine",
+      //     onBehalfOf: "Kel Budi"
       //   },
       //   {
-      //     QurbanId: 20,
+      //     QurbanId: 15,
       //     treeType: "Pine",
-      //     onBehalfOf: "Alm. Rudi bin Ridho, Alm. Sita binti Rizky"
+      //     onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky"
       //   }
       // ] //data dummy for testing
       const date = new Date().toISOString().split("-").join("").split(":").join("").split(".").join("")
@@ -457,6 +472,8 @@ class Controller {
         })
         return el
       })
+      await ReforestationDonation.bulkCreate(reforestationData)
+
       await Order.update ({totalPrice},{
         where: {OrderId}
       })
@@ -683,7 +700,7 @@ class Controller {
     let email = req.customer.email
     let pdfLink = data.response
 
-    email = "jessiino6@gmail.com"
+    // email = "jessiino6@gmail.com"
     sendEmailNodemailer(email, pdfLink, findOrder.OrderId, req.customer.username)
     
     res.status(200).json({
