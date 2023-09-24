@@ -497,13 +497,17 @@ class Controller {
         where: {
           id,
           CustomerId: req.customer.id
-        }
+        },
       });
       if (!order){
         throw ({name: "notFound", message: "Order not found!"})
       }
       const OrderId = order.dataValues.OrderId
       const orderDetails = await OrderDetail.findAll({
+        include: {
+          model: Qurban,
+          attributes: ['price']
+        },
         attributes: {exclude: ['createdAt', 'updatedAt']},
         where: {
           OrderId
