@@ -17,6 +17,7 @@ async function authentication (req, res, next) {
     req.customer = {
       id: findCustomer.id,
       email: findCustomer.email,
+      username: findCustomer.username
     }
     next()
   } catch(err){
