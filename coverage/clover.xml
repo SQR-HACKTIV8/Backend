@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1695653430945" clover="3.2.0">
+  <project timestamp="1695653430945" name="All files">
+    <metrics statements="374" coveredstatements="194" conditionals="76" coveredconditionals="32" methods="50" coveredmethods="29" elements="500" coveredelements="255" complexity="0" loc="374" ncloc="374" packages="7" files="18" classes="18"/>
+    <package name="Backend">
+      <metrics statements="14" coveredstatements="14" conditionals="4" coveredconditionals="3" methods="0" coveredmethods="0"/>
+      <file name="app.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\app.js">
+        <metrics statements="14" coveredstatements="14" conditionals="4" coveredconditionals="3" methods="0" coveredmethods="0"/>
+        <line num="2" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="6" count="2" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="10" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="14" count="2" type="stmt"/>
+        <line num="15" count="2" type="stmt"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="17" count="2" type="stmt"/>
+        <line num="23" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="Backend.config">
+      <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="redis.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\config\redis.js">
+        <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="6" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="Backend.controllers">
+      <metrics statements="205" coveredstatements="54" conditionals="36" coveredconditionals="9" methods="21" coveredmethods="6"/>
+      <file name="controller.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\controllers\controller.js">
+        <metrics statements="205" coveredstatements="54" conditionals="36" coveredconditionals="9" methods="21" coveredmethods="6"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="12" count="2" type="stmt"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="14" count="2" type="stmt"/>
+        <line num="15" count="2" type="stmt"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="17" count="2" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="37" count="0" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="43" count="1" type="stmt"/>
+        <line num="44" count="1" type="stmt"/>
+        <line num="45" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="46" count="0" type="stmt"/>
+        <line num="48" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="49" count="0" type="stmt"/>
+        <line num="52" count="1" type="stmt"/>
+        <line num="54" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="55" count="1" type="stmt"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="59" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="73" count="1" type="stmt"/>
+        <line num="74" count="1" type="stmt"/>
+        <line num="79" count="0" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="84" count="0" type="stmt"/>
+        <line num="86" count="0" type="stmt"/>
+        <line num="87" count="0" type="stmt"/>
+        <line num="92" count="1" type="stmt"/>
+        <line num="93" count="1" type="stmt"/>
+        <line num="95" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="96" count="0" type="stmt"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="99" count="1" type="stmt"/>
+        <line num="101" count="1" type="stmt"/>
+        <line num="102" count="1" type="stmt"/>
+        <line num="104" count="1" type="stmt"/>
+        <line num="106" count="0" type="stmt"/>
+        <line num="107" count="0" type="stmt"/>
+        <line num="112" count="3" type="stmt"/>
+        <line num="113" count="3" type="stmt"/>
+        <line num="115" count="3" type="stmt"/>
+        <line num="119" count="1" type="stmt"/>
+        <line num="121" count="1" type="stmt"/>
+        <line num="126" count="2" type="stmt"/>
+        <line num="127" count="2" type="stmt"/>
+        <line num="132" count="2" type="stmt"/>
+        <line num="133" count="2" type="stmt"/>
+        <line num="135" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="137" count="2" type="stmt"/>
+        <line num="147" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="148" count="1" type="stmt"/>
+        <line num="149" count="1" type="stmt"/>
+        <line num="152" count="2" type="stmt"/>
+        <line num="154" count="2" type="stmt"/>
+        <line num="156" count="0" type="stmt"/>
+        <line num="157" count="0" type="stmt"/>
+        <line num="162" count="1" type="stmt"/>
+        <line num="163" count="1" type="stmt"/>
+        <line num="165" count="1" type="stmt"/>
+        <line num="173" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="174" count="0" type="stmt"/>
+        <line num="177" count="1" type="stmt"/>
+        <line num="179" count="0" type="stmt"/>
+        <line num="180" count="0" type="stmt"/>
+        <line num="281" count="7" type="stmt"/>
+        <line num="282" count="7" type="stmt"/>
+        <line num="283" count="7" type="stmt"/>
+        <line num="288" count="1" type="stmt"/>
+        <line num="293" count="1" type="stmt"/>
+        <line num="294" count="1" type="stmt"/>
+        <line num="296" count="6" type="stmt"/>
+        <line num="297" count="6" type="stmt"/>
+        <line num="302" count="0" type="stmt"/>
+        <line num="303" count="0" type="stmt"/>
+        <line num="305" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="306" count="0" type="stmt"/>
+        <line num="307" count="0" type="stmt"/>
+        <line num="309" count="0" type="stmt"/>
+        <line num="313" count="0" type="stmt"/>
+        <line num="314" count="0" type="stmt"/>
+        <line num="316" count="0" type="stmt"/>
+        <line num="318" count="0" type="stmt"/>
+        <line num="319" count="0" type="stmt"/>
+        <line num="393" count="0" type="stmt"/>
+        <line num="394" count="0" type="stmt"/>
+        <line num="396" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="397" count="0" type="stmt"/>
+        <line num="398" count="0" type="stmt"/>
+        <line num="401" count="0" type="stmt"/>
+        <line num="407" count="0" type="stmt"/>
+        <line num="408" count="0" type="stmt"/>
+        <line num="410" count="0" type="stmt"/>
+        <line num="412" count="0" type="stmt"/>
+        <line num="413" count="0" type="stmt"/>
+        <line num="418" count="0" type="stmt"/>
+        <line num="419" count="0" type="stmt"/>
+        <line num="433" count="0" type="stmt"/>
+        <line num="441" count="0" type="stmt"/>
+        <line num="442" count="0" type="stmt"/>
+        <line num="443" count="0" type="stmt"/>
+        <line num="444" count="0" type="stmt"/>
+        <line num="445" count="0" type="stmt"/>
+        <line num="451" count="0" type="stmt"/>
+        <line num="452" count="0" type="stmt"/>
+        <line num="453" count="0" type="stmt"/>
+        <line num="454" count="0" type="stmt"/>
+        <line num="455" count="0" type="stmt"/>
+        <line num="458" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="459" count="0" type="stmt"/>
+        <line num="462" count="0" type="stmt"/>
+        <line num="469" count="0" type="stmt"/>
+        <line num="470" count="0" type="stmt"/>
+        <line num="481" count="0" type="stmt"/>
+        <line num="482" count="0" type="stmt"/>
+        <line num="483" count="0" type="stmt"/>
+        <line num="484" count="0" type="stmt"/>
+        <line num="485" count="0" type="stmt"/>
+        <line num="488" count="0" type="stmt"/>
+        <line num="489" count="0" type="stmt"/>
+        <line num="490" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="491" count="0" type="stmt"/>
+        <line num="494" count="0" type="stmt"/>
+        <line num="496" count="0" type="stmt"/>
+        <line num="498" count="0" type="stmt"/>
+        <line num="505" count="0" type="stmt"/>
+        <line num="509" count="0" type="stmt"/>
+        <line num="518" count="0" type="stmt"/>
+        <line num="524" count="0" type="stmt"/>
+        <line num="525" count="0" type="stmt"/>
+        <line num="527" count="0" type="stmt"/>
+        <line num="532" count="0" type="stmt"/>
+        <line num="533" count="0" type="stmt"/>
+        <line num="538" count="0" type="stmt"/>
+        <line num="539" count="0" type="stmt"/>
+        <line num="540" count="0" type="stmt"/>
+        <line num="547" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="548" count="0" type="stmt"/>
+        <line num="551" count="0" type="stmt"/>
+        <line num="556" count="0" type="stmt"/>
+        <line num="557" count="0" type="stmt"/>
+        <line num="558" count="0" type="stmt"/>
+        <line num="561" count="0" type="stmt"/>
+        <line num="562" count="0" type="stmt"/>
+        <line num="567" count="0" type="stmt"/>
+        <line num="569" count="0" type="stmt"/>
+        <line num="570" count="0" type="stmt"/>
+        <line num="572" count="0" type="stmt"/>
+        <line num="576" count="0" type="stmt"/>
+        <line num="577" count="0" type="stmt"/>
+        <line num="582" count="0" type="stmt"/>
+        <line num="583" count="0" type="stmt"/>
+        <line num="584" count="0" type="stmt"/>
+        <line num="591" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="592" count="0" type="stmt"/>
+        <line num="594" count="0" type="stmt"/>
+        <line num="595" count="0" type="stmt"/>
+        <line num="605" count="0" type="stmt"/>
+        <line num="607" count="0" type="stmt"/>
+        <line num="608" count="0" type="stmt"/>
+        <line num="613" count="0" type="stmt"/>
+        <line num="614" count="0" type="stmt"/>
+        <line num="615" count="0" type="stmt"/>
+        <line num="621" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="622" count="0" type="stmt"/>
+        <line num="627" count="0" type="stmt"/>
+        <line num="632" count="0" type="stmt"/>
+        <line num="645" count="0" type="stmt"/>
+        <line num="646" count="0" type="stmt"/>
+        <line num="648" count="0" type="stmt"/>
+        <line num="649" count="0" type="stmt"/>
+        <line num="654" count="0" type="stmt"/>
+        <line num="655" count="0" type="stmt"/>
+        <line num="656" count="0" type="stmt"/>
+        <line num="663" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="664" count="0" type="stmt"/>
+        <line num="665" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="666" count="0" type="stmt"/>
+        <line num="672" count="0" type="stmt"/>
+        <line num="682" count="0" type="stmt"/>
+        <line num="690" count="0" type="stmt"/>
+        <line num="695" count="0" type="stmt"/>
+        <line num="696" count="0" type="stmt"/>
+        <line num="698" count="0" type="stmt"/>
+        <line num="704" count="0" type="stmt"/>
+        <line num="719" count="0" type="stmt"/>
+        <line num="720" count="0" type="stmt"/>
+        <line num="732" count="0" type="stmt"/>
+        <line num="733" count="0" type="stmt"/>
+        <line num="736" count="0" type="stmt"/>
+        <line num="743" count="0" type="stmt"/>
+        <line num="747" count="0" type="stmt"/>
+        <line num="749" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="750" count="0" type="stmt"/>
+        <line num="757" count="0" type="stmt"/>
+        <line num="761" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="Backend.helpers">
+      <metrics statements="21" coveredstatements="11" conditionals="0" coveredconditionals="0" methods="6" coveredmethods="2"/>
+      <file name="bcryptjs.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\helpers\bcryptjs.js">
+        <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="1"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="3" count="4" type="stmt"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="6" count="2" type="stmt"/>
+      </file>
+      <file name="jwt.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\helpers\jwt.js">
+        <metrics statements="10" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="3" coveredmethods="1"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="8" count="0" type="stmt"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="25" count="2" type="stmt"/>
+      </file>
+      <file name="nodemailer.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\helpers\nodemailer.js">
+        <metrics statements="7" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="4" count="0" type="stmt"/>
+        <line num="5" count="0" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="26" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="Backend.middlewares">
+      <metrics statements="41" coveredstatements="26" conditionals="22" coveredconditionals="13" methods="2" coveredmethods="2"/>
+      <file name="authentication.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\middlewares\authentication.js">
+        <metrics statements="15" coveredstatements="10" conditionals="4" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="5" count="3" type="stmt"/>
+        <line num="6" count="3" type="stmt"/>
+        <line num="7" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="10" count="2" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="13" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="24" count="3" type="stmt"/>
+        <line num="25" count="3" type="stmt"/>
+        <line num="29" count="2" type="stmt"/>
+      </file>
+      <file name="errorhandler.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\middlewares\errorhandler.js">
+        <metrics statements="26" coveredstatements="16" conditionals="18" coveredconditionals="11" methods="1" coveredmethods="1"/>
+        <line num="2" count="12" type="stmt"/>
+        <line num="3" count="12" type="stmt"/>
+        <line num="5" count="12" type="stmt"/>
+        <line num="7" count="12" type="cond" truecount="4" falsecount="0"/>
+        <line num="8" count="8" type="stmt"/>
+        <line num="9" count="8" type="stmt"/>
+        <line num="10" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="11" count="0" type="stmt"/>
+        <line num="12" count="0" type="stmt"/>
+        <line num="13" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="16" count="4" type="cond" truecount="4" falsecount="0"/>
+        <line num="17" count="3" type="stmt"/>
+        <line num="18" count="3" type="stmt"/>
+        <line num="19" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="22" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="25" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="30" count="12" type="stmt"/>
+        <line num="33" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="Backend.models">
+      <metrics statements="69" coveredstatements="65" conditionals="14" coveredconditionals="7" methods="21" coveredmethods="19"/>
+      <file name="category.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\models\category.js">
+        <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="12" count="2" type="stmt"/>
+        <line num="15" count="2" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+      </file>
+      <file name="customer.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\models\customer.js">
+        <metrics statements="9" coveredstatements="6" conditionals="4" coveredconditionals="0" methods="4" coveredmethods="2"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="54" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="95" count="2" type="stmt"/>
+      </file>
+      <file name="index.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\models\index.js">
+        <metrics statements="21" coveredstatements="20" conditionals="10" coveredconditionals="7" methods="3" coveredmethods="3"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="6" count="2" type="stmt"/>
+        <line num="7" count="2" type="stmt"/>
+        <line num="8" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="10" count="2" type="stmt"/>
+        <line num="13" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="14" count="0" type="stmt"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="19" count="2" type="stmt"/>
+        <line num="22" count="18" type="stmt"/>
+        <line num="30" count="16" type="stmt"/>
+        <line num="31" count="16" type="stmt"/>
+        <line num="34" count="2" type="stmt"/>
+        <line num="35" count="16" type="cond" truecount="1" falsecount="1"/>
+        <line num="36" count="16" type="stmt"/>
+        <line num="40" count="2" type="stmt"/>
+        <line num="41" count="2" type="stmt"/>
+        <line num="43" count="2" type="stmt"/>
+      </file>
+      <file name="notification.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\models\notification.js">
+        <metrics statements="4" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="12" count="2" type="stmt"/>
+        <line num="53" count="2" type="stmt"/>
+      </file>
+      <file name="order.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\models\order.js">
+        <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="12" count="2" type="stmt"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="32" count="2" type="stmt"/>
+      </file>
+      <file name="orderdetail.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\models\orderdetail.js">
+        <metrics statements="8" coveredstatements="8" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="10" count="2" type="stmt"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="14" count="2" type="stmt"/>
+        <line num="33" count="2" type="stmt"/>
+      </file>
+      <file name="orderhistory.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\models\orderhistory.js">
+        <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="54" count="2" type="stmt"/>
+      </file>
+      <file name="qurban.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\models\qurban.js">
+        <metrics statements="6" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="12" count="2" type="stmt"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="141" count="2" type="stmt"/>
+      </file>
+      <file name="reforestationdonation.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\models\reforestationdonation.js">
+        <metrics statements="5" coveredstatements="5" conditionals="0" coveredconditionals="0" methods="2" coveredmethods="2"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="8" count="2" type="stmt"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="30" count="2" type="stmt"/>
+      </file>
+    </package>
+    <package name="Backend.routes">
+      <metrics statements="20" coveredstatements="20" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="index.js" path="C:\Users\fatah\OneDrive\Desktop\Backend\routes\index.js">
+        <metrics statements="20" coveredstatements="20" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+        <line num="1" count="2" type="stmt"/>
+        <line num="2" count="2" type="stmt"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="9" count="2" type="stmt"/>
+        <line num="10" count="2" type="stmt"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="13" count="2" type="stmt"/>
+        <line num="14" count="2" type="stmt"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="20" count="2" type="stmt"/>
+        <line num="21" count="2" type="stmt"/>
+        <line num="28" count="2" type="stmt"/>
+        <line num="30" count="2" type="stmt"/>
+        <line num="34" count="2" type="stmt"/>
+        <line num="35" count="2" type="stmt"/>
+        <line num="36" count="2" type="stmt"/>
+        <line num="37" count="2" type="stmt"/>
+        <line num="38" count="2" type="stmt"/>
+        <line num="40" count="2" type="stmt"/>
+        <line num="42" count="2" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>
