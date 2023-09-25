@@ -1,11 +1,20 @@
-const { comparePassword } = require("../helpers/bcryptjs")
-const { createToken, createTokenPdf } = require("../helpers/jwt")
-const { Category, Qurban, Customer, Notification, OrderHistory, Order, OrderDetail, ReforestationDonation } = require("../models");
+const { comparePassword } = require("../helpers/bcryptjs");
+const { createToken, createTokenPdf } = require("../helpers/jwt");
+const {
+  Category,
+  Qurban,
+  Customer,
+  Notification,
+  OrderHistory,
+  Order,
+  OrderDetail,
+  ReforestationDonation,
+} = require("../models");
 const { Op } = require("sequelize");
 const redis = require("../config/redis");
 const midtransClient = require("midtrans-client");
 const sendEmailNodemailer = require("../helpers/nodemailer");
-const axios = require('axios')
+const axios = require("axios");
 
 class Controller {
   static async register(req, res, next) {
@@ -131,13 +140,13 @@ class Controller {
         where: {
           name: { [Op.iLike]: `%${search}%` },
           isBooked: false,
-          quality: 'Premium'
+          quality: "Premium",
         },
       };
 
       if (filter) {
         obj.where.CategoryId = filter;
-        delete obj.where.quality
+        delete obj.where.quality;
       }
 
       const qurbans = await Qurban.findAll(obj);
@@ -157,12 +166,12 @@ class Controller {
         include: [Category],
         where: {
           id,
-          isBooked: false
-        }
+          isBooked: false,
+        },
       });
 
-      if (!qurban){
-        throw ({name: "notFound", message: "Qurban not found!"})
+      if (!qurban) {
+        throw { name: "notFound", message: "Qurban not found!" };
       }
 
       res.status(200).json(qurban);
@@ -172,109 +181,114 @@ class Controller {
     }
   }
 
-  static async addQurban(req, res, next) {
-    try {
-      const {
-        name,
-        CategoryId,
-        price,
-        quality,
-        description,
-        imageUrl1,
-        imageUrl2,
-        imageUrl3,
-        videoUrl,
-        weight,
-      } = req.body;
+  // static async addQurban(req, res, next) {
+  //   try {
+  //     const {
+  //       name,
+  //       CategoryId,
+  //       price,
+  //       quality,
+  //       description,
+  //       imageUrl1,
+  //       imageUrl2,
+  //       imageUrl3,
+  //       videoUrl,
+  //       weight,
+  //     } = req.body;
 
-      const category = await Category.findByPk(CategoryId);
+  //     const category = await Category.findByPk(CategoryId);
 
-      if (!category){
-        throw ({name: "notFound", message: "Category not found!"})
-      }
+  //     if (!category) {
+  //       throw { name: "notFound", message: "Category not found!" };
+  //     }
 
-      const newQurban = await Qurban.create({
-        name,
-        CategoryId,
-        price,
-        quality,
-        description,
-        imageUrl1,
-        imageUrl2,
-        imageUrl3,
-        videoUrl,
-        weight,
-        isBooked: false,
-      });
+  //     const newQurban = await Qurban.create({
+  //       name,
+  //       CategoryId,
+  //       price,
+  //       quality,
+  //       description,
+  //       imageUrl1,
+  //       imageUrl2,
+  //       imageUrl3,
+  //       videoUrl,
+  //       weight,
+  //       isBooked: false,
+  //     });
 
-      res.status(201).json({
-        message: `Qurban with id ${newQurban.id} has been created`,
-        newQurban,
-      });
-    } catch (error) {
-      console.log(error, "<<< Error add qurban");
-      next(error);
-    }
-  }
+  //     res.status(201).json({
+  //       message: `Qurban with id ${newQurban.id} has been created`,
+  //       newQurban,
+  //     });
+  //   } catch (error) {
+  //     console.log(error, "<<< Error add qurban");
+  //     next(error);
+  //   }
+  // }
 
-  static async updateQurban(req, res, next) {
-    try {
-      const { id } = req.params;
-      const {
-        name,
-        CategoryId,
-        price,
-        quality,
-        description,
-        imageUrl1,
-        imageUrl2,
-        imageUrl3,
-        videoUrl,
-        weight,
-        isBooked,
-      } = req.body;
+  // static async updateQurban(req, res, next) {
+  //   try {
+  //     const { id } = req.params;
+  //     const {
+  //       name,
+  //       CategoryId,
+  //       price,
+  //       quality,
+  //       description,
+  //       imageUrl1,
+  //       imageUrl2,
+  //       imageUrl3,
+  //       videoUrl,
+  //       weight,
+  //       isBooked,
+  //     } = req.body;
 
-      const qurban = await Qurban.findByPk(id);
+  //     const qurban = await Qurban.findByPk(id);
 
-      if (!qurban){
-        throw ({name: "notFound", message: "Qurban not found!"})
-      }
+  //     if (!qurban) {
+  //       throw { name: "notFound", message: "Qurban not found!" };
+  //     }
 
-      let updatedQurban = await Qurban.update(
-        {
-          name,
-          CategoryId,
-          price,
-          quality,
-          description,
-          imageUrl1,
-          imageUrl2,
-          imageUrl3,
-          videoUrl,
-          weight,
-          isBooked,
-        },
-        {
-          where: { id },
-        }
-      );
+  //     let updatedQurban = await Qurban.update(
+  //       {
+  //         name,
+  //         CategoryId,
+  //         price,
+  //         quality,
+  //         description,
+  //         imageUrl1,
+  //         imageUrl2,
+  //         imageUrl3,
+  //         videoUrl,
+  //         weight,
+  //         isBooked,
+  //       },
+  //       {
+  //         where: { id },
+  //       }
+  //     );
 
-      res
-        .status(200)
-        .json({ message: "Qurban updated successfully", updatedQurban });
-    } catch (error) {
-      console.log(error, "<<< Error update qurban detail by id");
-      next(error);
-    }
-  }
+  //     res
+  //       .status(200)
+  //       .json({ message: "Qurban updated successfully", updatedQurban });
+  //   } catch (error) {
+  //     console.log(error, "<<< Error update qurban detail by id");
+  //     next(error);
+  //   }
+  // }
 
   static async createNotification(req, res, next) {
     try {
       let { title, imageUrl, description } = req.body;
-      const notification = await Notification.create({ title, imageUrl, description });
+      const notification = await Notification.create({
+        title,
+        imageUrl,
+        description,
+      });
       let data = {
         id: notification.id,
         title: notification.title,
+        imageUrl: notification.imageUrl,
       };
       await redis.del("sqr_notifcations");
       res.status(201).json(data);
@@ -306,74 +320,74 @@ class Controller {
     }
   }
 
-  static async showAllReforestationDonation(req, res, next) {
-    try{
-      const reforestationDonations = await ReforestationDonation.findAll({
-        attributes: { exclude:['createdAt', 'updatedAt'] }
-      })
+  // static async showAllReforestationDonation(req, res, next) {
+  //   try {
+  //     const reforestationDonations = await ReforestationDonation.findAll({
+  //       attributes: { exclude: ["createdAt", "updatedAt"] },
+  //     });
 
-      res.status (200).json(reforestationDonations)
-    } catch (err) {
-      console.log(err, "<<< Error show all reforestation donation");
-      next(err)
-    }
-  }
-  
-  static async addOrderHistory (req, res, next){
-    try {
-      let { title, description, OrderDetailId, imageUrl, videoUrl } = req.body;
-      const orderHistory = await OrderHistory.create({
-        title,
-        description,
-        OrderDetailId,
-        imageUrl,
-        videoUrl,
-      });
-      let data = {
-        id: orderHistory.id,
-        title: orderHistory.title,
-        OrderDetailId: orderHistory.OrderDetailId,
-      };
+  //     res.status(200).json(reforestationDonations);
+  //   } catch (err) {
+  //     console.log(err, "<<< Error show all reforestation donation");
+  //     next(err);
+  //   }
+  // }
 
-      await redis.del("sqr_orderHistories");
+  // static async addOrderHistory(req, res, next) {
+  //   try {
+  //     let { title, description, OrderDetailId, imageUrl, videoUrl } = req.body;
+  //     const orderHistory = await OrderHistory.create({
+  //       title,
+  //       description,
+  //       OrderDetailId,
+  //       imageUrl,
+  //       videoUrl,
+  //     });
+  //     let data = {
+  //       id: orderHistory.id,
+  //       title: orderHistory.title,
+  //       OrderDetailId: orderHistory.OrderDetailId,
+  //     };
 
-      res.status(201).json(data);
-    } catch (err) {
-      console.log(err, "<<< Error add order history");
-      next(err);
-    }
-  }
+  //     await redis.del("sqr_orderHistories");
 
-  static async showAllOrderHistory(req, res, next) {
-    try {
-      const orderHistoryCache = await redis.get("sqr_orderHistories");
+  //     res.status(201).json(data);
+  //   } catch (err) {
+  //     console.log(err, "<<< Error add order history");
+  //     next(err);
+  //   }
+  // }
 
-      if (orderHistoryCache) {
-        const data = JSON.parse(orderHistoryCache);
-        return res.status(200).json(data);
-      }
-      const orderHistories = await OrderHistory.findAll({
-        include: {
-          model: OrderDetail,
-          // include: Order
-          // {
-          //   model: Order,
-          //   // where: {
-          //   //   CustomerId: req.customer.id
-          //   // }
-          // }
-        },
-        attributes: { exclude: ["createdAt", "updatedAt"] },
-      });
-      const stringOrderHistories = JSON.stringify(orderHistories);
-      await redis.set("sqr_orderHistories", stringOrderHistories);
+  // static async showAllOrderHistory(req, res, next) {
+  //   try {
+  //     const orderHistoryCache = await redis.get("sqr_orderHistories");
 
-      res.status(200).json(orderHistories);
-    } catch (err) {
-      console.log(err, "<<< Error show all order history");
-      next(err);
-    }
-  }
+  //     if (orderHistoryCache) {
+  //       const data = JSON.parse(orderHistoryCache);
+  //       return res.status(200).json(data);
+  //     }
+  //     const orderHistories = await OrderHistory.findAll({
+  //       include: {
+  //         model: OrderDetail,
+  //         // include: Order
+  //         // {
+  //         //   model: Order,
+  //         //   // where: {
+  //         //   //   CustomerId: req.customer.id
+  //         //   // }
+  //         // }
+  //       },
+  //       attributes: { exclude: ["createdAt", "updatedAt"] },
+  //     });
+  //     const stringOrderHistories = JSON.stringify(orderHistories);
+  //     await redis.set("sqr_orderHistories", stringOrderHistories);
+
+  //     res.status(200).json(orderHistories);
+  //   } catch (err) {
+  //     console.log(err, "<<< Error show all order history");
+  //     next(err);
+  //   }
+  // }
 
   static async showAllOrders(req, res, next) {
     try {
@@ -385,9 +399,9 @@ class Controller {
       }
 
       const orders = await Order.findAll({
-        where : {
-          CustomerId: req.customer.id
-        }
+        where: {
+          CustomerId: req.customer.id,
+        },
       });
 
       const stringOrders = JSON.stringify(orders);
@@ -403,39 +417,46 @@ class Controller {
   static async addOrder(req, res, next) {
     try {
       let data = req.body;
-      
+
       // data = [
       //   {
       //     QurbanId: 5,
       //     treeType: "Pine",
-      //     onBehalfOf: "Kel Budi"
+      //     onBehalfOf: "Kel Budi",
       //   },
       //   {
       //     QurbanId: 15,
       //     treeType: "Pine",
-      //     onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky"
-      //   }
-      // ] //data dummy for testing
-      const date = new Date().toISOString().split("-").join("").split(":").join("").split(".").join("")
-      const OrderId = "SQR" + date + Math.floor(1000 + Math.random() * 1000)
-      let reforestationData = []
-      let qurbansId = []
-      data.map(el => {
+      //     onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky",
+      //   },
+      // ]; //data dummy for testing
+      const date = new Date()
+        .toISOString()
+        .split("-")
+        .join("")
+        .split(":")
+        .join("")
+        .split(".")
+        .join("");
+      const OrderId = "SQR" + date + Math.floor(1000 + Math.random() * 1000);
+      let reforestationData = [];
+      let qurbansId = [];
+      data.map((el) => {
         reforestationData.push({
           treeType: el.treeType,
           quantity: 1,
-          createdAt : new Date(),
-          updatedAt : new Date()
-        })
-        qurbansId.push (el.QurbanId)
-        delete el.treeType
-        el.OrderId = OrderId
-        el.createdAt = el.updatedAt = new Date()
-        return el
-      })
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        qurbansId.push(el.QurbanId);
+        delete el.treeType;
+        el.OrderId = OrderId;
+        el.createdAt = el.updatedAt = new Date();
+        return el;
+      });
 
-      if (!qurbansId[0]){
-        throw ({name: "notFound", message: "Qurban is required!"})
+      if (!qurbansId[0]) {
+        throw { name: "notFound", message: "Qurban is required!" };
       }
 
       const newOrder = await Order.create({
@@ -445,58 +466,64 @@ class Controller {
         OrderId,
       });
 
-      await OrderDetail.bulkCreate(data)
+      await OrderDetail.bulkCreate(data);
       const orderDetails = await OrderDetail.findAll({
         include: {
           model: Qurban,
-          attributes: ['price']
+          attributes: ["price"],
         },
         where: {
-          OrderId
+          OrderId,
         },
-        attributes:['id']
+        attributes: ["id"],
       });
-      
-      let orderDetailsId = []
-      let totalPrice = 0
-      orderDetails.forEach(el => {
-        orderDetailsId.push(el.dataValues.id)
-        totalPrice += el.dataValues.Qurban.dataValues.price  
+
+      let orderDetailsId = [];
+      let totalPrice = 0;
+      orderDetails.forEach((el) => {
+        orderDetailsId.push(el.dataValues.id);
+        totalPrice += el.dataValues.Qurban.dataValues.price;
       });
 
       reforestationData.map((el, i) => {
         orderDetailsId.forEach((e, y) => {
-          if (i === y){
-            el.OrderDetailId = e
+          if (i === y) {
+            el.OrderDetailId = e;
           }
-        })
-        return el
-      })
-      await ReforestationDonation.bulkCreate(reforestationData)
+        });
+        return el;
+      });
+      await ReforestationDonation.bulkCreate(reforestationData);
 
-      await Order.update ({totalPrice},{
-        where: {OrderId}
-      })
-
-      const findNewOrder = await Order.findOne ({
-        where: {OrderId}
-      })
-
-      await Qurban.update({ isBooked: true }, {
-        where: {
-          id: qurbansId
+      await Order.update(
+        { totalPrice },
+        {
+          where: { OrderId },
         }
+      );
+
+      const findNewOrder = await Order.findOne({
+        where: { OrderId },
       });
 
+      await Qurban.update(
+        { isBooked: true },
+        {
+          where: {
+            id: qurbansId,
+          },
+        }
+      );
+
       await OrderHistory.create({
-        title: "New Order", 
-        description: `Created new order with id ${OrderId}. Status payment is pending`, 
-        OrderDetailId: orderDetailsId[0]
-      })
+        title: "New Order",
+        description: `Created new order with id ${OrderId}. Status payment is pending`,
+        OrderDetailId: orderDetailsId[0],
+      });
 
       await redis.del("sqr_orders");
       await redis.del("sqr_orderHistories");
-      
+
       res.status(201).json({
         message: `Order with id ${newOrder.id} has been created`,
         findNewOrder,
@@ -513,34 +540,31 @@ class Controller {
       const order = await Order.findOne({
         where: {
           id: orderId,
-          CustomerId: req.customer.id
-        }
+          CustomerId: req.customer.id,
+        },
       });
 
-      if (!order){
-        throw ({name: "notFound", message: "Order not found!"})
+      if (!order) {
+        throw { name: "notFound", message: "Order not found!" };
       }
 
       const orderDetails = await OrderDetail.findAll({
         where: {
           OrderId: order.OrderId,
-        }
-      })
-      const sampleOrderDetailId = orderDetails[0].dataValues.id
-      const qurbansId = orderDetails.map(el => {
-        return el.QurbanId
-      })
+        },
+      });
+      const sampleOrderDetailId = orderDetails[0].dataValues.id;
+      const qurbansId = orderDetails.map((el) => {
+        return el.QurbanId;
+      });
 
       await Order.destroy({ where: { id: orderId } });
       await OrderHistory.create({
-        title: "Order Cancel", 
-        description: `Order with id ${order.OrderId} has been canceled`, 
-        OrderDetailId: sampleOrderDetailId
-      })
-      await Qurban.update(
-        { isBooked: false },
-        { where: { id: qurbansId } }
-      )
+        title: "Order Cancel",
+        description: `Order with id ${order.OrderId} has been canceled`,
+        OrderDetailId: sampleOrderDetailId,
+      });
+      await Qurban.update({ isBooked: false }, { where: { id: qurbansId } });
 
       await redis.del("sqr_orders");
       await redis.del("sqr_orderHistories");
@@ -556,167 +580,182 @@ class Controller {
 
   static async showDetailOrder(req, res, next) {
     try {
-      const {id} = req.params
+      const { id } = req.params;
       const order = await Order.findOne({
-        attributes: {exclude: ['createdAt', 'updatedAt']},
+        attributes: { exclude: ["createdAt", "updatedAt"] },
         where: {
           id,
-          CustomerId: req.customer.id
+          CustomerId: req.customer.id,
         },
       });
-      if (!order){
-        throw ({name: "notFound", message: "Order not found!"})
+      if (!order) {
+        throw { name: "notFound", message: "Order not found!" };
       }
-      const OrderId = order.dataValues.OrderId
+      const OrderId = order.dataValues.OrderId;
       const orderDetails = await OrderDetail.findAll({
         include: {
           model: Qurban,
-          attributes: ['price']
+          attributes: ["price"],
         },
-        attributes: {exclude: ['createdAt', 'updatedAt']},
+        attributes: { exclude: ["createdAt", "updatedAt"] },
         where: {
-          OrderId
-        }
-      })
-      res.status(200).json({order, orderDetails});
+          OrderId,
+        },
+      });
+      res.status(200).json({ order, orderDetails });
     } catch (error) {
       console.log(error, "<<< Error show detail from order");
       next(error);
     }
   }
 
-  static async generateTokenMidtarns(req, res, next){
+  static async generateTokenMidtarns(req, res, next) {
     try {
-      const {OrderId, totalPrice} = req.body
+      const { OrderId, totalPrice } = req.body;
       const findOrder = await Order.findOne({
         where: {
-          OrderId
-        }
-      })
+          OrderId,
+        },
+      });
 
-      if (findOrder.statusPayment){
-        throw ({name: 'found', message: `Order with id ${OrderId} already paid`})
+      if (findOrder.statusPayment) {
+        throw {
+          name: "found",
+          message: `Order with id ${OrderId} already paid`,
+        };
       }
       let snap = new midtransClient.Snap({
-              isProduction : false,
-              serverKey : process.env.MIDTRANS_KEY
-          });
+        isProduction: false,
+        serverKey: process.env.MIDTRANS_KEY,
+      });
 
       let parameter = {
-          "transaction_details": {
-              "order_id": OrderId,
-              "gross_amount": totalPrice
-          },
-          "credit_card":{
-              "secure" : true
-          },
-          "customer_details": {
-              "email": req.customer.email,
-          }
+        transaction_details: {
+          order_id: OrderId,
+          gross_amount: totalPrice,
+        },
+        credit_card: {
+          secure: true,
+        },
+        customer_details: {
+          email: req.customer.email,
+        },
       };
-      
-      const midtrans_token = await snap.createTransaction(parameter)
-      res.status(201).json(midtrans_token)
 
+      const midtrans_token = await snap.createTransaction(parameter);
+      res.status(201).json(midtrans_token);
     } catch (error) {
       console.log(error, "<<< Error generate midtrans token");
-      next(error)
+      next(error);
     }
   }
 
-  static async updatePaymentStatus (req, res, next) {
+  static async updatePaymentStatus(req, res, next) {
     try {
-    const {id} = req.params
-    const findOrder = await Order.findOne({
-      where: {
-        id,
-        CustomerId: req.customer.id
-      }
-    })
-
-    if (!findOrder){
-      throw ({name: 'notFound', message: "Order not found!"})
-    } else if (findOrder.statusPayment){
-      throw ({name: 'found', message: `Order with id ${findOrder.OrderId} already paid`})
-    }
-    
-    const orderDetails = await OrderDetail.findAll({
-      where: {
-        OrderId: findOrder.OrderId
-      },
-      include: {
-        model: Qurban,
-        attributes: ['name', 'price']
-      }
-    })
-
-    await Order.update({ statusPayment: true }, {
-      where: {
-        id
-      }
-    })  
-    await OrderHistory.create({
-      title: "Order Payment", 
-      description: `Order payment with id ${findOrder.OrderId} has been successfully made`, 
-      OrderDetailId: orderDetails[0].dataValues.id
-    })
-    await redis.del("sqr_orders");
-    await redis.del("sqr_orderHistories");
-
-    const lineItems = orderDetails.map((item) => ({
-      on_behalf_of: item.onBehalfOf,
-      price: item.Qurban.price,
-      qurban_name: item.Qurban.name,
-    }));
-
-    const pdfData = {
-      template: {
-        id: 795521,
-        data: {
-          invoice_number: findOrder.OrderId,
-          email_id: req.customer.email,
-          name: req.customer.username,
-          line_items: lineItems,
-          total_price: findOrder.totalPrice
+      const { id } = req.params;
+      const findOrder = await Order.findOne({
+        where: {
+          id,
+          CustomerId: req.customer.id,
         },
-      },
-      format: "pdf",
-      output: "url",
-      name: "SQR Invoice",
-    };
-    const token_pdf = createTokenPdf();
-    const {data} = await axios.post(
-      "https://us1.pdfgeneratorapi.com/api/v4/documents/generate",
-      pdfData,
-      { 
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${token_pdf}`,
-        } 
+      });
+
+      if (!findOrder) {
+        throw { name: "notFound", message: "Order not found!" };
+      } else if (findOrder.statusPayment) {
+        throw {
+          name: "found",
+          message: `Order with id ${findOrder.OrderId} already paid`,
+        };
       }
-    );
 
-    let email = req.customer.email
-    let pdfLink = data.response
+      const orderDetails = await OrderDetail.findAll({
+        where: {
+          OrderId: findOrder.OrderId,
+        },
+        include: {
+          model: Qurban,
+          attributes: ["name", "price"],
+        },
+      });
 
-    // email = "jessiino6@gmail.com"
-    sendEmailNodemailer(email, pdfLink, findOrder.OrderId, req.customer.username)
-    
-    res.status(200).json({
-      message: `Payment with order id ${findOrder.OrderId} success`
-    })
+      // await Order.update(
+      //   { statusPayment: true },
+      //   {
+      //     where: {
+      //       id,
+      //     },
+      //   }
+      // );
+      // await OrderHistory.create({
+      //   title: "Order Payment",
+      //   description: `Order payment with id ${findOrder.OrderId} has been successfully made`,
+      //   OrderDetailId: orderDetails[0].dataValues.id,
+      // });
+      // await redis.del("sqr_orders");
+      // await redis.del("sqr_orderHistories");
 
+      const lineItems = orderDetails.map((item) => ({
+        on_behalf_of: item.onBehalfOf,
+        price: item.Qurban.price,
+        qurban_name: item.Qurban.name,
+      }));
+
+      const pdfData = {
+        template: {
+          id: 795521,
+          data: {
+            invoice_number: findOrder.OrderId,
+            email_id: req.customer.email,
+            name: req.customer.username,
+            line_items: lineItems,
+            total_price: findOrder.totalPrice,
+          },
+        },
+        format: "pdf",
+        output: "url",
+        name: "SQR Invoice",
+      };
+      const token_pdf = createTokenPdf();
+      const { data } = await axios.post(
+        "https://us1.pdfgeneratorapi.com/api/v4/documents/generate",
+        pdfData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+            Authorization: `Bearer ${token_pdf}`,
+          },
+        }
+      );
+
+      let email = req.customer.email;
+      let pdfLink = data.response;
+
+      // email = "jessiino6@gmail.com"
+      sendEmailNodemailer(
+        email,
+        pdfLink,
+        findOrder.OrderId,
+        req.customer.username
+      );
+
+      res.status(200).json({
+        message: `Payment with order id ${findOrder.OrderId} success`,
+      });
     } catch (error) {
       console.log(error, "<<< Error update status payment");
-      
-      if (error.name === "AxiosError"){
-        return next({name: "AxiosError", status: error.response.status, message: error.response.data.message})
+
+      if (error.name === "AxiosError") {
+        return next({
+          name: "AxiosError",
+          status: error.response.status,
+          message: error.response.data.message,
+        });
       }
-      
-      next(error)
+
+      next(error);
     }
   }
-
 }
 module.exports = Controller;

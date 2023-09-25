@@ -168,10 +168,19 @@ describe("POST /login", () => {
       password: "abc123",
     };
 
-    const response = await request(app).post("/pub/login").send(body);
+    const response = await request(app).post("/login").send(body);
 
     expect(response.status).toBe(401);
     expect(response.body).toHaveProperty("message");
+  });
+});
+
+describe("GET /customers", () => {
+  it("should successfully get all customers without access token and filter", async () => {
+    const response = await request(app).get("/customers");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toBeInstanceOf(Array);
   });
 });
 
