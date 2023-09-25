@@ -49,7 +49,10 @@ class Controller {
         throw { name: "dataEmpty", message: "Password is required!" };
       }
 
-      const customer = await Customer.findOne({ where: { email } });
+      const customer = await Customer.findOne({ 
+        where: { email },
+        attributes: {exclude: ['createdAt', 'updatedAt']} 
+      });
 
       if (!customer) {
         throw { name: "unauthorize" };
@@ -66,8 +69,7 @@ class Controller {
 
       res.status(200).json({
         access_token,
-        username: customer.username,
-        email: customer.email,
+        customer
       });
     } catch (err) {
       console.log(err, "<<< Error login");
