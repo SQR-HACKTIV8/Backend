@@ -393,21 +393,11 @@ class Controller {
 
   static async showAllOrders(req, res, next) {
     try {
-      const orderCache = await redis.get("sqr_orders");
-
-      if (orderCache) {
-        const data = JSON.parse(orderCache);
-        return res.status(200).json(data);
-      }
-
       const orders = await Order.findAll({
         where: {
           CustomerId: req.customer.id,
         },
       });
-
-      const stringOrders = JSON.stringify(orders);
-      await redis.set("sqr_orders", stringOrders);
 
       res.status(200).json(orders);
     } catch (error) {
@@ -665,6 +655,7 @@ class Controller {
       if (findOrder.statusPayment){
         throw ({name: 'found', message: `Order with id ${OrderId} already paid`})
       }
+
       let snap = new midtransClient.Snap({
           isProduction : false,
           serverKey : process.env.MIDTRANS_SERVER_KEY
