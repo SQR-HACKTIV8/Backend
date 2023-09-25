@@ -536,24 +536,19 @@ class Controller {
           OrderId: order.OrderId,
         }
       })
-      const sampleOrderDetailId = orderDetails[0].dataValues.id
+
       const qurbansId = orderDetails.map(el => {
         return el.QurbanId
       })
 
       await Order.destroy({ where: { id: orderId } });
-      await OrderHistory.create({
-        title: "Order Cancel", 
-        description: `Order with id ${order.OrderId} has been canceled`, 
-        OrderDetailId: sampleOrderDetailId
-      })
+
       await Qurban.update(
         { isBooked: false },
         { where: { id: qurbansId } }
       )
 
       await redis.del("sqr_orders");
-      await redis.del("sqr_orderHistories");
 
       res.status(200).json({
         message: `Order with id ${order.OrderId} canceled succesfully.`,
