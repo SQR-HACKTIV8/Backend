@@ -429,6 +429,7 @@ class Controller {
       //     onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky"
       //   }
       // ] //data dummy for testing
+
       if (data.length === 0){
         throw ({name: "notFound", message: "Qurban is required!"})
       }
@@ -623,7 +624,7 @@ class Controller {
         return el
 
       })
-      
+
       if (orderHistories.length > 0){
         function sortById() {
           return function (el1, el2) {
@@ -655,15 +656,16 @@ class Controller {
         },
       });
 
-      if (findOrder.statusPayment) {
-        throw {
-          name: "found",
-          message: `Order with id ${OrderId} already paid`,
-        };
+      if (!findOrder){
+        throw ({name: 'notFound', message: `Order not found!`})
+      }
+
+      if (findOrder.statusPayment){
+        throw ({name: 'found', message: `Order with id ${OrderId} already paid`})
       }
       let snap = new midtransClient.Snap({
-        isProduction: false,
-        serverKey: process.env.MIDTRANS_KEY,
+          isProduction : false,
+          serverKey : process.env.MIDTRANS_SERVER_KEY
       });
 
       let parameter = {
