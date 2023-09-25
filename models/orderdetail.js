@@ -14,18 +14,7 @@ module.exports = (sequelize, DataTypes) => {
   OrderDetail.init({
     OrderId: DataTypes.STRING,
     QurbanId: DataTypes.INTEGER,
-    onBehalfOf: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: "Sender's name is required",
-        },
-        notNull: {
-          msg: "Sender's name is required",
-        },
-      },
-    }
+    onBehalfOf: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'OrderDetail',

@@ -10,18 +10,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   ReforestationDonation.init({
     OrderDetailId: DataTypes.INTEGER,
-    treeType: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        notEmpty: {
-          msg: "Tree type is required!"
-        },
-        notNull: {
-          msg: "Tree type is required!"
-        }
-      }
-    },
+    treeType: DataTypes.STRING,
     quantity: DataTypes.INTEGER
   }, {
     sequelize,

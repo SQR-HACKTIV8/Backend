@@ -417,47 +417,60 @@ class Controller {
   static async addOrder(req, res, next) {
     try {
       let data = req.body;
-
       // data = [
       //   {
-      //     QurbanId: 5,
+      //     QurbanId: 11,
       //     treeType: "Pine",
       //     onBehalfOf: "Kel Budi",
       //   },
       //   {
       //     QurbanId: 15,
       //     treeType: "Pine",
-      //     onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky",
-      //   },
-      // ]; //data dummy for testing
-      const date = new Date()
-        .toISOString()
-        .split("-")
-        .join("")
-        .split(":")
-        .join("")
-        .split(".")
-        .join("");
-      const OrderId = "SQR" + date + Math.floor(1000 + Math.random() * 1000);
-      let reforestationData = [];
-      let qurbansId = [];
-      data.map((el) => {
+      //     onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky"
+      //   }
+      // ] //data dummy for testing
+      if (data.length === 0){
+        throw ({name: "notFound", message: "Qurban is required!"})
+      }
+      const date = new Date().toISOString().split("-").join("").split(":").join("").split(".").join("")
+      const OrderId = "SQR" + date + Math.floor(1000 + Math.random() * 1000)
+      let reforestationData = []
+      let qurbansId = []
+      data.map(el => {
+        if (!el.QurbanId){
+          throw ({name: "notFound", message: "Qurban is required!"})
+        }
+        if (!el.treeType){
+          throw ({name: "notFound", message: "Tree type is required!"})
+        }
+        if (!el.onBehalfOf){
+          throw ({name: "notFound", message: "Sender's name is required!"})
+        }
         reforestationData.push({
           treeType: el.treeType,
           quantity: 1,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        });
-        qurbansId.push(el.QurbanId);
-        delete el.treeType;
-        el.OrderId = OrderId;
-        el.createdAt = el.updatedAt = new Date();
-        return el;
-      });
+          createdAt : new Date(),
+          updatedAt : new Date()
+        })
+        qurbansId.push (el.QurbanId)
+        delete el.treeType
+        el.OrderId = OrderId
+        el.createdAt = el.updatedAt = new Date()
+        return el
+      })
 
-      if (!qurbansId[0]) {
-        throw { name: "notFound", message: "Qurban is required!" };
-      }
+      const findQurbans = await Qurban.findAll({
+        attributes: ['id', 'isBooked', 'name'],
+        where: {
+          id: qurbansId
+        }
+      })
+
+      findQurbans.forEach(el => {
+        if (el.dataValues.isBooked){
+          throw ({name: "notFound", message: `${el.dataValues.name} is booked! Choose another one`})
+        }
+      });
 
       const newOrder = await Order.create({
         CustomerId: req.customer.id,
@@ -515,15 +528,8 @@ class Controller {
         }
       );
 
-      await OrderHistory.create({
-        title: "New Order",
-        description: `Created new order with id ${OrderId}. Status payment is pending`,
-        OrderDetailId: orderDetailsId[0],
-      });
-
       await redis.del("sqr_orders");
-      await redis.del("sqr_orderHistories");
-
+      
       res.status(201).json({
         message: `Order with id ${newOrder.id} has been created`,
         findNewOrder,
@@ -551,23 +557,21 @@ class Controller {
       const orderDetails = await OrderDetail.findAll({
         where: {
           OrderId: order.OrderId,
-        },
-      });
-      const sampleOrderDetailId = orderDetails[0].dataValues.id;
-      const qurbansId = orderDetails.map((el) => {
-        return el.QurbanId;
-      });
+        }
+      })
+
+      const qurbansId = orderDetails.map(el => {
+        return el.QurbanId
+      })
 
       await Order.destroy({ where: { id: orderId } });
-      await OrderHistory.create({
-        title: "Order Cancel",
-        description: `Order with id ${order.OrderId} has been canceled`,
-        OrderDetailId: sampleOrderDetailId,
-      });
-      await Qurban.update({ isBooked: false }, { where: { id: qurbansId } });
+
+      await Qurban.update(
+        { isBooked: false },
+        { where: { id: qurbansId } }
+      )
 
       await redis.del("sqr_orders");
-      await redis.del("sqr_orderHistories");
 
       res.status(200).json({
         message: `Order with id ${order.OrderId} canceled succesfully.`,
@@ -591,18 +595,51 @@ class Controller {
       if (!order) {
         throw { name: "notFound", message: "Order not found!" };
       }
-      const OrderId = order.dataValues.OrderId;
-      const orderDetails = await OrderDetail.findAll({
-        include: {
-          model: Qurban,
-          attributes: ["price"],
-        },
-        attributes: { exclude: ["createdAt", "updatedAt"] },
+
+      const OrderId = order.dataValues.OrderId
+      let orderDetails = await OrderDetail.findAll({
+        include: [
+          {
+            model: Qurban,
+            attributes: ['price']
+          },
+          {
+            model: OrderHistory,
+            attributes: {exclude: ['createdAt', 'updatedAt']}
+          },
+      ],
+        attributes: {exclude: ['createdAt', 'updatedAt']},
         where: {
-          OrderId,
-        },
-      });
-      res.status(200).json({ order, orderDetails });
+          OrderId
+        }
+      })
+      
+      let orderHistories = []
+      orderDetails = orderDetails.map(el => {
+        el.dataValues.OrderHistories.forEach(e => {
+          orderHistories.push(e.dataValues)
+        })
+        delete el.dataValues.OrderHistories
+        return el
+
+      })
+      
+      if (orderHistories.length > 0){
+        function sortById() {
+          return function (el1, el2) {
+            if (el1.id < el2.id) {
+              return -1;
+            } else if (el1.id > el2.id) {
+              return 1;
+            } else {
+              return 0;
+            }
+          };
+        }
+        orderHistories = orderHistories.sort(sortById())
+      }
+
+      res.status(200).json({order, orderDetails, orderHistories});
     } catch (error) {
       console.log(error, "<<< Error show detail from order");
       next(error);

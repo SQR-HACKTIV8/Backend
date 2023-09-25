@@ -24,12 +24,11 @@ router.get("/qurbans/:id", Controller.showDetailQurban);
 // router.put("/qurbans/:id", Controller.updateQurban); //admin
 
 // router.post("/order_histories", Controller.addOrderHistory); // admin
+// router.get("/order_histories", Controller.showAllOrderHistory); // admin
 
 router.use(authentication);
 
 router.get("/notifications", Controller.showAllNotification);
-
-// router.get("/order_histories", Controller.showAllOrderHistory); // admin
 
 router.get("/orders", Controller.showAllOrders);
 router.post("/orders", Controller.addOrder);
