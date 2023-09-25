@@ -403,12 +403,11 @@ class Controller {
   static async addOrder(req, res, next) {
     try {
       let data = req.body;
-      
       // data = [
       //   {
-      //     QurbanId: 5,
+      //     QurbanId: 11,
       //     treeType: "Pine",
-      //     onBehalfOf: "Kel Budi"
+      //     onBehalfOf: "Rita"
       //   },
       //   {
       //     QurbanId: 15,
@@ -421,6 +420,15 @@ class Controller {
       let reforestationData = []
       let qurbansId = []
       data.map(el => {
+        if (!el.QurbanId){
+          throw ({name: "notFound", message: "Qurban is required!"})
+        }
+        if (!el.treeType){
+          throw ({name: "notFound", message: "Tree type is required!"})
+        }
+        if (!el.onBehalfOf){
+          throw ({name: "notFound", message: "Sender's name is required!"})
+        }
         reforestationData.push({
           treeType: el.treeType,
           quantity: 1,
@@ -434,9 +442,18 @@ class Controller {
         return el
       })
 
-      if (!qurbansId[0]){
-        throw ({name: "notFound", message: "Qurban is required!"})
-      }
+      const findQurbans = await Qurban.findAll({
+        attributes: ['id', 'isBooked', 'name'],
+        where: {
+          id: qurbansId
+        }
+      })
+
+      findQurbans.forEach(el => {
+        if (el.dataValues.isBooked){
+          throw ({name: "notFound", message: `${el.dataValues.name} is booked! Choose another one`})
+        }
+      });
 
       const newOrder = await Order.create({
         CustomerId: req.customer.id,
@@ -488,14 +505,7 @@ class Controller {
         }
       });
 
-      await OrderHistory.create({
-        title: "New Order", 
-        description: `Created new order with id ${OrderId}. Status payment is pending`, 
-        OrderDetailId: orderDetailsId[0]
-      })
-
       await redis.del("sqr_orders");
-      await redis.del("sqr_orderHistories");
       
       res.status(201).json({
         message: `Order with id ${newOrder.id} has been created`,
@@ -588,6 +598,7 @@ class Controller {
   static async generateTokenMidtarns(req, res, next){
     try {
       const {OrderId, totalPrice} = req.body
+      console.log(req.body, "<<<<")
       const findOrder = await Order.findOne({
         where: {
           OrderId

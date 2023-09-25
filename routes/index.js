@@ -28,7 +28,7 @@ router.put("/qurbans/:id", Controller.updateQurban); //admin
 router.get("/notifications", Controller.showAllNotification);
 
 router.post('/order_histories', Controller.addOrderHistory) // admin
-router.get('/order_histories', Controller.showAllOrderHistory)
+router.get('/order_histories', Controller.showAllOrderHistory) //admin
 
 router.get("/orders", Controller.showAllOrders);
 router.post("/orders", Controller.addOrder);
