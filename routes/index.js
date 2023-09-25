@@ -11,24 +11,25 @@ router.post("/login", Controller.login);
 router.get("/customers", Controller.showAllCustomer); //for debug
 
 router.get("/categories", Controller.showAllCategories);
-router.post("/categories", Controller.addCategory);
+router.post("/categories", Controller.addCategory); // admin
 
 router.post("/notifications", Controller.createNotification); // admin
 
-router.get("/reforestation-donations", Controller.showAllReforestationDonation) // admin
+router.get("/reforestation-donations", Controller.showAllReforestationDonation); // admin
 
 router.get("/qurbans", Controller.showAllQurbans);
 router.get("/qurbans/:id", Controller.showDetailQurban);
 
-router.use(authentication);
-
 router.post("/qurbans", Controller.addQurban); //admin
 router.put("/qurbans/:id", Controller.updateQurban); //admin
 
+router.post("/order_histories", Controller.addOrderHistory); // admin
+
+router.use(authentication);
+
 router.get("/notifications", Controller.showAllNotification);
 
-router.post('/order_histories', Controller.addOrderHistory) // admin
-router.get('/order_histories', Controller.showAllOrderHistory)
+router.get("/order_histories", Controller.showAllOrderHistory);
 
 router.get("/orders", Controller.showAllOrders);
 router.post("/orders", Controller.addOrder);
