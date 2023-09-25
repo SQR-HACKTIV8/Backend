@@ -415,6 +415,9 @@ class Controller {
       //     onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky"
       //   }
       // ] //data dummy for testing
+      if (data.length === 0){
+        throw ({name: "notFound", message: "Qurban is required!"})
+      }
       const date = new Date().toISOString().split("-").join("").split(":").join("").split(".").join("")
       const OrderId = "SQR" + date + Math.floor(1000 + Math.random() * 1000)
       let reforestationData = []
