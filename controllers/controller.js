@@ -570,23 +570,55 @@ class Controller {
         where: {
           id,
           CustomerId: req.customer.id
-        },
+        }
       });
       if (!order){
         throw ({name: "notFound", message: "Order not found!"})
       }
       const OrderId = order.dataValues.OrderId
-      const orderDetails = await OrderDetail.findAll({
-        include: {
-          model: Qurban,
-          attributes: ['price']
-        },
+      let orderDetails = await OrderDetail.findAll({
+        include: [
+          {
+            model: Qurban,
+            attributes: ['price']
+          },
+          {
+            model: OrderHistory,
+            attributes: {exclude: ['createdAt', 'updatedAt']}
+          },
+      ],
         attributes: {exclude: ['createdAt', 'updatedAt']},
         where: {
           OrderId
         }
       })
-      res.status(200).json({order, orderDetails});
+      
+      let orderHistories = []
+      orderDetails = orderDetails.map(el => {
+        el.dataValues.OrderHistories.forEach(e => {
+          orderHistories.push(e.dataValues)
+        })
+        delete el.dataValues.OrderHistories
+        return el
+
+      })
+      
+      if (orderHistories.length > 0){
+        function sortById() {
+          return function (el1, el2) {
+            if (el1.id < el2.id) {
+              return -1;
+            } else if (el1.id > el2.id) {
+              return 1;
+            } else {
+              return 0;
+            }
+          };
+        }
+        orderHistories = orderHistories.sort(sortById())
+      }
+
+      res.status(200).json({order, orderDetails, orderHistories});
     } catch (error) {
       console.log(error, "<<< Error show detail from order");
       next(error);
@@ -596,7 +628,6 @@ class Controller {
   static async generateTokenMidtarns(req, res, next){
     try {
       const {OrderId, totalPrice} = req.body
-      console.log(req.body, "<<<<")
       const findOrder = await Order.findOne({
         where: {
           OrderId
