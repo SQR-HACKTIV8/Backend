@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx jest --forceExit --detectOpenHandles"
+    "test": "npx jest --forceExit --detectOpenHandles",
+    "testc": "npx jest --coverage --detectOpenHandles",
+    "dev": "node --watch app.js"
   },
   "repository": {
     "type": "git",
