@@ -410,18 +410,18 @@ class Controller {
   static async addOrder(req, res, next) {
     try {
       let data = req.body;
-      // data = [
-      //   {
-      //     QurbanId: 7,
-      //     treeType: "Pine",
-      //     onBehalfOf: "Kel Budi",
-      //   },
-      //   {
-      //     QurbanId: 20,
-      //     treeType: "Pine",
-      //     onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky"
-      //   }
-      // ] //data dummy for testing
+      data = [
+        {
+          QurbanId: 8,
+          treeType: "Pine",
+          onBehalfOf: "Kel Budi",
+        },
+        {
+          QurbanId: 9,
+          treeType: "Pine",
+          onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky"
+        }
+      ] //data dummy for testing
       if (!Array.isArray(data)){
         throw ({name: "notFound", message: "Qurban is required!"})
       }
@@ -707,7 +707,7 @@ class Controller {
 
       if (!findOrder) {
         throw { name: "notFound", message: "Order not found!" };
-      } 
+      }
 
       if (transactionStatus == 'capture'){
         if (fraudStatus == 'accept'){
@@ -719,11 +719,12 @@ class Controller {
               },
             }
           );
-          createInvoice(findOrder.OrderId, findOrder.Customer.username, findOrder.Customer.email, findOrder.totalPrice)    
-          
+
+          createInvoice(findOrder.OrderId, findOrder.Customer.username, findOrder.Customer.email, findOrder.totalPrice)
+
           res.status(200).json({
             status: "success"
-          }) 
+          })          
         }
       } else if (transactionStatus == 'settlement'){
         await Order.update(
@@ -735,17 +736,16 @@ class Controller {
           }
         );
 
-          createInvoice(findOrder.OrderId, findOrder.Customer.username, findOrder.Customer.email, findOrder.totalPrice) 
+        createInvoice(findOrder.OrderId, findOrder.Customer.username, findOrder.Customer.email, findOrder.totalPrice)
 
-          res.status(200).json({
-            status: "success"
-          }) 
+        res.status(200).json({
+          status: "success"}) 
       } else if (transactionStatus == 'cancel' ||
         transactionStatus == 'deny' ||
         transactionStatus == 'expire'){
 
         res.status(200).json({
-          status: "failure"
+          status: "failure",
         }) 
       } else if (transactionStatus == 'pending'){
         res.status(200).json({
