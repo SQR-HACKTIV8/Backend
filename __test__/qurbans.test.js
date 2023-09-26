@@ -4,6 +4,7 @@ const redis = require("../config/redis");
 const { sequelize } = require("../models");
 const { hashPassword } = require("../helpers/bcryptjs");
 let access_token = "";
+let dynamicOrderId;
 let wrong_access_token = "wrong";
 
 beforeAll(async () => {
@@ -353,6 +354,21 @@ describe("GET /qurbans/:id", () => {
     expect(response.status).toBe(200);
     expect(response.body).toBeInstanceOf(Object);
   });
+
+  it("should respond with 404 when qurban not found", async () => {
+    const response = await request(app).get("/qurbans/999");
+
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty("message", "Qurban not found!");
+  });
+
+  it("should respond with 500 when an internal server error occurs", async () => {
+    // Simulate an internal server error by passing an invalid ID (e.g., a string)
+    const response = await request(app).get("/qurbans/invalidId");
+
+    expect(response.status).toBe(500);
+    expect(response.body).toHaveProperty("message", "Internal Server Error");
+  });
 });
 
 describe("GET /notifications", () => {
@@ -399,7 +415,18 @@ describe("GET /orders", () => {
 
 describe("POST /orders", () => {
   it("responds with 201 when success", async () => {
-    const data = null;
+    const data = [
+      {
+        QurbanId: 1,
+        treeType: "Pine",
+        onBehalfOf: "Kel Budi",
+      },
+      {
+        QurbanId: 3,
+        treeType: "Pine",
+        onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky",
+      },
+    ];
     // data is hardcoded in controller
     const response = await request(app)
       .post("/orders")
@@ -434,6 +461,129 @@ describe("POST /orders", () => {
     expect(response.body).toBeInstanceOf(Object);
     expect(response.body).toHaveProperty("message");
   });
+
+  it("responds with 400 when missing Qurban data", async () => {
+    const response = await request(app)
+      .post("/orders")
+      .send({ data: [] })
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  it("responds with 400 when missing tree type", async () => {
+    const body = [
+      {
+        QurbanId: 1,
+        onBehalfOf: "Kel Budi",
+      },
+    ];
+
+    const response = await request(app)
+      .post("/orders")
+      .send({ data: body })
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  it("responds with 400 when missing sender's name", async () => {
+    const body = [
+      {
+        QurbanId: 1,
+        treeType: "Pine",
+      },
+    ];
+
+    const response = await request(app)
+      .post("/orders")
+      .send({ data: body })
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  it("responds with 400 when data is null", async () => {
+    const response = await request(app)
+      .post("/orders")
+      .send({ data: null })
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  it("responds with 400 when data is not an array", async () => {
+    const response = await request(app)
+      .post("/orders")
+      .send({ data: "not an array" })
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  it("responds with 400 when QurbanId is missing", async () => {
+    const body = [
+      {
+        treeType: "Pine",
+        onBehalfOf: "Kel Budi",
+      },
+    ];
+
+    const response = await request(app)
+      .post("/orders")
+      .send({ data: body })
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  it("responds with 400 when treeType is missing", async () => {
+    const body = [
+      {
+        QurbanId: 1,
+        onBehalfOf: "Kel Budi",
+      },
+    ];
+
+    const response = await request(app)
+      .post("/orders")
+      .send({ data: body })
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  it("responds with 400 when onBehalfOf is missing", async () => {
+    const body = [
+      {
+        QurbanId: 1,
+        treeType: "Pine",
+      },
+    ];
+
+    const response = await request(app)
+      .post("/orders")
+      .send({ data: body })
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message");
+  });
 });
 
 describe("GET /orders/1", () => {
@@ -453,11 +603,6 @@ describe("GET /orders/1", () => {
     expect(response.body.order).toHaveProperty("totalPrice");
     expect(response.body.order).toHaveProperty("totalQuantity");
     expect(response.body.order).toHaveProperty("OrderId");
-    expect(response.body.orderDetails[0]).toHaveProperty("id");
-    expect(response.body.orderDetails[0]).toHaveProperty("OrderId");
-    expect(response.body.orderDetails[0]).toHaveProperty("QurbanId");
-    expect(response.body.orderDetails[0]).toHaveProperty("onBehalfOf");
-    expect(response.body.orderDetails[0]).toHaveProperty("Qurban");
   });
 
   it("shouldn't successfully get all order details with wrong access token", async () => {

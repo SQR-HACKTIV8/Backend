@@ -49,9 +49,9 @@ class Controller {
         throw { name: "dataEmpty", message: "Password is required!" };
       }
 
-      const customer = await Customer.findOne({ 
+      const customer = await Customer.findOne({
         where: { email },
-        attributes: {exclude: ['createdAt', 'updatedAt']} 
+        attributes: { exclude: ["createdAt", "updatedAt"] },
       });
 
       if (!customer) {
@@ -69,10 +69,10 @@ class Controller {
 
       res.status(200).json({
         access_token,
-        customer
+        customer,
       });
     } catch (err) {
-      console.log(err, "<<< Error login");
+      // console.log(err, "<<< Error login");
       next(err);
     }
   }
@@ -85,7 +85,7 @@ class Controller {
 
       res.status(200).json(customers);
     } catch (err) {
-      console.log(err, "<<< Error show all customer");
+      // console.log(err, "<<< Error show all customer");
       next(err);
     }
   }
@@ -105,7 +105,7 @@ class Controller {
 
       res.status(200).json(categories);
     } catch (error) {
-      console.log(error, "<<< Error show all category");
+      // console.log(error, "<<< Error show all category");
       next(error);
     }
   }
@@ -125,7 +125,7 @@ class Controller {
         newCategory,
       });
     } catch (error) {
-      console.log(error, "<<< Error add category");
+      // console.log(error, "<<< Error add category");
       next(error);
     }
   }
@@ -155,7 +155,7 @@ class Controller {
 
       res.status(200).json(qurbans);
     } catch (error) {
-      console.log(error, "<<< Error show all qurban");
+      // console.log(error, "<<< Error show all qurban");
       next(error);
     }
   }
@@ -178,7 +178,7 @@ class Controller {
 
       res.status(200).json(qurban);
     } catch (error) {
-      console.log(error, "<<< Error show qurban by id");
+      // console.log(error, "<<< Error show qurban by id");
       next(error);
     }
   }
@@ -295,7 +295,7 @@ class Controller {
       await redis.del("sqr_notifcations");
       res.status(201).json(data);
     } catch (err) {
-      console.log(err, "<<< Error create notification");
+      // console.log(err, "<<< Error create notification");
       next(err);
     }
   }
@@ -317,7 +317,7 @@ class Controller {
 
       res.status(200).json(notifications);
     } catch (err) {
-      console.log(err, "<<< Error show all notification");
+      // console.log(err, "<<< Error show all notification");
       next(err);
     }
   }
@@ -401,7 +401,7 @@ class Controller {
 
       res.status(200).json(orders);
     } catch (error) {
-      console.log(err, "<<< Error show all orders");
+      // console.log(err, "<<< Error show all orders");
       next(err);
     }
   }
@@ -409,32 +409,39 @@ class Controller {
   static async addOrder(req, res, next) {
     try {
       let { data } = req.body;
-      data = [
-        {
-          QurbanId: 1,
-          treeType: "Pine",
-          onBehalfOf: "Kel Budi",
-        },
-        {
-          QurbanId: 20,
-          treeType: "Pine",
-          onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky"
-        }
-      ] //data dummy for testing
-      if (!Array.isArray(data)){
-        throw ({name: "notFound", message: "Qurban is required!"})
+      // data = [
+      //   {
+      //     QurbanId: 1,
+      //     treeType: "Pine",
+      //     onBehalfOf: "Kel Budi",
+      //   },
+      //   {
+      //     QurbanId: 3,
+      //     treeType: "Pine",
+      //     onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky",
+      //   },
+      // ]; //data dummy for testing
+      if (!Array.isArray(data)) {
+        throw { name: "notFound", message: "Qurban is required!" };
       }
-      if (data.length === 0){
-        throw ({name: "notFound", message: "Qurban is required!"})
+      if (data.length === 0) {
+        throw { name: "notFound", message: "Qurban is required!" };
       }
 
-      const date = new Date().toISOString().split("-").join("").split(":").join("").split(".").join("")
-      const OrderId = "SQR" + date + Math.floor(1000 + Math.random() * 1000)
-      let reforestationData = []
-      let qurbansId = []
-      data.map(el => {
-        if (!el.QurbanId){
-          throw ({name: "notFound", message: "Qurban is required!"})
+      const date = new Date()
+        .toISOString()
+        .split("-")
+        .join("")
+        .split(":")
+        .join("")
+        .split(".")
+        .join("");
+      const OrderId = "SQR" + date + Math.floor(1000 + Math.random() * 1000);
+      let reforestationData = [];
+      let qurbansId = [];
+      data.map((el) => {
+        if (!el.QurbanId) {
+          throw { name: "notFound", message: "Qurban is required!" };
         }
         if (!el.treeType) {
           throw { name: "notFound", message: "Tree type is required!" };
@@ -460,6 +467,15 @@ class Controller {
         where: {
           id: qurbansId,
         },
+      });
+
+      findQurbans.forEach((el) => {
+        if (el.dataValues.isBooked) {
+          throw {
+            name: "notFound",
+            message: "Qurban is booked! Choose another one",
+          };
+        }
       });
 
       findQurbans.forEach((el) => {
@@ -569,7 +585,7 @@ class Controller {
         message: `Order with id ${order.OrderId} canceled succesfully.`,
       });
     } catch (error) {
-      console.log(error, "<<< Error delete order");
+      // console.log(error, "<<< Error delete order");
       next(error);
     }
   }
@@ -632,7 +648,7 @@ class Controller {
 
       res.status(200).json({ order, orderDetails, orderHistories });
     } catch (error) {
-      console.log(error, "<<< Error show detail from order");
+      // console.log(error, "<<< Error show detail from order");
       next(error);
     }
   }
@@ -646,17 +662,20 @@ class Controller {
         },
       });
 
-      if (!findOrder){
-        throw ({name: 'notFound', message: `Order not found!`})
+      if (!findOrder) {
+        throw { name: "notFound", message: `Order not found!` };
       }
 
-      if (findOrder.statusPayment){
-        throw ({name: 'found', message: `Order with id ${OrderId} already paid`})
+      if (findOrder.statusPayment) {
+        throw {
+          name: "found",
+          message: `Order with id ${OrderId} already paid`,
+        };
       }
 
       let snap = new midtransClient.Snap({
-          isProduction : false,
-          serverKey : process.env.MIDTRANS_SERVER_KEY
+        isProduction: false,
+        serverKey: process.env.MIDTRANS_SERVER_KEY,
       });
 
       let parameter = {
@@ -692,7 +711,7 @@ class Controller {
 
       if (!findOrder) {
         throw { name: "notFound", message: "Order not found!" };
-      } 
+      }
 
       const orderDetails = await OrderDetail.findAll({
         where: {
@@ -766,80 +785,91 @@ class Controller {
     }
   }
 
-  static async paymentNotification(req, res, next){
+  static async paymentNotification(req, res, next) {
     try {
-      let notificationJson = req.body
+      let notificationJson = req.body;
 
       let apiClient = new midtransClient.Snap({
-        isProduction : false,
-        serverKey : process.env.MIDTRANS_SERVER_KEY,
-        clientKey : process.env.MIDTRANS_CLIENT_KEY
-      })
-      
-      const statusResponse = await apiClient.transaction.notification(notificationJson)
+        isProduction: false,
+        serverKey: process.env.MIDTRANS_SERVER_KEY,
+        clientKey: process.env.MIDTRANS_CLIENT_KEY,
+      });
+
+      const statusResponse = await apiClient.transaction.notification(
+        notificationJson
+      );
       let orderId = statusResponse.order_id;
       let transactionStatus = statusResponse.transaction_status;
       let fraudStatus = statusResponse.fraud_status;
 
-      console.log("============\nTransaction notification received. \nOrder ID: " + orderId + ". \nTransaction status: " + transactionStatus+ ". \nFraud status: " +fraudStatus+ "\n============");
+      console.log(
+        "============\nTransaction notification received. \nOrder ID: " +
+          orderId +
+          ". \nTransaction status: " +
+          transactionStatus +
+          ". \nFraud status: " +
+          fraudStatus +
+          "\n============"
+      );
 
       const findOrder = await Order.findOne({
         where: {
-          OrderId: orderId
+          OrderId: orderId,
         },
       });
 
       if (!findOrder) {
         throw { name: "notFound", message: "Order not found!" };
-      } 
+      }
 
-      if (transactionStatus == 'capture'){
-        if (fraudStatus == 'accept'){
+      if (transactionStatus == "capture") {
+        if (fraudStatus == "accept") {
           await Order.update(
             { statusPayment: true },
             {
               where: {
-                OrderId: findOrder.OrderId
+                OrderId: findOrder.OrderId,
               },
             }
           );
           res.status(200).json({
             status: "success",
             message: `Payment with order id ${findOrder.OrderId} success`,
-          })          
+          });
         }
-      } else if (transactionStatus == 'settlement'){
+      } else if (transactionStatus == "settlement") {
         await Order.update(
           { statusPayment: true },
           {
             where: {
-              OrderId: findOrder.OrderId
+              OrderId: findOrder.OrderId,
             },
           }
         );
         res.status(200).json({
           status: "success",
           message: `Payment with order id ${findOrder.OrderId} success`,
-        }) 
-      } else if (transactionStatus == 'cancel' ||
-        transactionStatus == 'deny' ||
-        transactionStatus == 'expire'){
-
+        });
+      } else if (
+        transactionStatus == "cancel" ||
+        transactionStatus == "deny" ||
+        transactionStatus == "expire"
+      ) {
         res.status(200).json({
           status: "failure",
           OrderId: findOrder.OrderId,
           totalPrice: findOrder.totalPrice,
           message: `Payment with order id ${findOrder.OrderId} failure`,
-        }) 
-      } else if (transactionStatus == 'pending'){
+        });
+      } else if (transactionStatus == "pending") {
         res.status(200).json({
           status: "pending",
           message: `Payment with order id ${findOrder.OrderId} pending`,
-        })
+        });
       }
     } catch (error) {
       console.log(error, "<<< Error payment notification");
-      next(error)
+      next(error);
     }
   }
 }

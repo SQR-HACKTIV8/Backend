@@ -146,8 +146,10 @@ describe("POST /login", () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("access_token");
-    expect(response.body).toHaveProperty("username", "usertiga");
-    expect(response.body).toHaveProperty("email", "user3@gmail.com");
+    expect(response.body).toHaveProperty("customer");
+    expect(response.body.customer).toHaveProperty("id", 3);
+    expect(response.body.customer).toHaveProperty("username", "usertiga");
+    expect(response.body.customer).toHaveProperty("email", "user3@gmail.com");
   });
 
   it("responds with 401 when login with wrong password", async () => {
