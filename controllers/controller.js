@@ -591,7 +591,7 @@ class Controller {
         include: [
           {
             model: Qurban,
-            attributes: ["price"],
+            attributes: ['name','price','imageUrl1', 'imageUrl2', 'imageUrl3', 'weight']
           },
           {
             model: OrderHistory,
