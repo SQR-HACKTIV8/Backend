@@ -409,22 +409,25 @@ class Controller {
   static async addOrder(req, res, next) {
     try {
       let data = req.body;
-      // data = [
-      //   {
-      //     QurbanId: 11,
-      //     treeType: "Pine",
-      //     onBehalfOf: "Kel Budi",
-      //   },
-      //   {
-      //     QurbanId: 15,
-      //     treeType: "Pine",
-      //     onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky"
-      //   }
-      // ] //data dummy for testing
-
+      data = [
+        {
+          QurbanId: 7,
+          treeType: "Pine",
+          onBehalfOf: "Kel Budi",
+        },
+        {
+          QurbanId: 20,
+          treeType: "Pine",
+          onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky"
+        }
+      ] //data dummy for testing
+      if (!Array.isArray(data)){
+        throw ({name: "notFound", message: "Qurban is required!"})
+      }
       if (data.length === 0){
         throw ({name: "notFound", message: "Qurban is required!"})
       }
+
       const date = new Date().toISOString().split("-").join("").split(":").join("").split(".").join("")
       const OrderId = "SQR" + date + Math.floor(1000 + Math.random() * 1000)
       let reforestationData = []
@@ -655,7 +658,7 @@ class Controller {
       if (findOrder.statusPayment){
         throw ({name: 'found', message: `Order with id ${OrderId} already paid`})
       }
-
+      
       let snap = new midtransClient.Snap({
           isProduction : false,
           serverKey : process.env.MIDTRANS_SERVER_KEY
@@ -694,12 +697,7 @@ class Controller {
 
       if (!findOrder) {
         throw { name: "notFound", message: "Order not found!" };
-      } else if (findOrder.statusPayment) {
-        throw {
-          name: "found",
-          message: `Order with id ${findOrder.OrderId} already paid`,
-        };
-      }
+      } 
 
       const orderDetails = await OrderDetail.findAll({
         where: {
@@ -710,22 +708,6 @@ class Controller {
           attributes: ["name", "price"],
         },
       });
-
-      // await Order.update(
-      //   { statusPayment: true },
-      //   {
-      //     where: {
-      //       id,
-      //     },
-      //   }
-      // );
-      // await OrderHistory.create({
-      //   title: "Order Payment",
-      //   description: `Order payment with id ${findOrder.OrderId} has been successfully made`,
-      //   OrderDetailId: orderDetails[0].dataValues.id,
-      // });
-      // await redis.del("sqr_orders");
-      // await redis.del("sqr_orderHistories");
 
       const lineItems = orderDetails.map((item) => ({
         on_behalf_of: item.onBehalfOf,
@@ -785,8 +767,84 @@ class Controller {
           message: error.response.data.message,
         });
       }
-
       next(error);
+    }
+  }
+
+  static async paymentNotification(req, res, next){
+    try {
+      let notificationJson = req.body
+
+      let apiClient = new midtransClient.Snap({
+        isProduction : false,
+        serverKey : process.env.MIDTRANS_SERVER_KEY,
+        clientKey : process.env.MIDTRANS_CLIENT_KEY
+      })
+      
+      const statusResponse = await apiClient.transaction.notification(notificationJson)
+      let orderId = statusResponse.order_id;
+      let transactionStatus = statusResponse.transaction_status;
+      let fraudStatus = statusResponse.fraud_status;
+
+      console.log("============\nTransaction notification received. \nOrder ID: " + orderId + ". \nTransaction status: " + transactionStatus+ ". \nFraud status: " +fraudStatus+ "\n============");
+
+      const findOrder = await Order.findOne({
+        where: {
+          OrderId: orderId
+        },
+      });
+
+      if (!findOrder) {
+        throw { name: "notFound", message: "Order not found!" };
+      } 
+
+      if (transactionStatus == 'capture'){
+        if (fraudStatus == 'accept'){
+          await Order.update(
+            { statusPayment: true },
+            {
+              where: {
+                OrderId: findOrder.OrderId
+              },
+            }
+          );
+          res.status(200).json({
+            status: "success",
+            message: `Payment with order id ${findOrder.OrderId} success`,
+          })          
+        }
+      } else if (transactionStatus == 'settlement'){
+        await Order.update(
+          { statusPayment: true },
+          {
+            where: {
+              OrderId: findOrder.OrderId
+            },
+          }
+        );
+        res.status(200).json({
+          status: "success",
+          message: `Payment with order id ${findOrder.OrderId} success`,
+        }) 
+      } else if (transactionStatus == 'cancel' ||
+        transactionStatus == 'deny' ||
+        transactionStatus == 'expire'){
+
+        res.status(200).json({
+          status: "failure",
+          OrderId: findOrder.OrderId,
+          totalPrice: findOrder.totalPrice,
+          message: `Payment with order id ${findOrder.OrderId} failure`,
+        }) 
+      } else if (transactionStatus == 'pending'){
+        res.status(200).json({
+          status: "pending",
+          message: `Payment with order id ${findOrder.OrderId} pending`,
+        })
+      }
+    } catch (error) {
+      console.log(error, "<<< Error payment notification");
+      next(error)
     }
   }
 }

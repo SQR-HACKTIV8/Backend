@@ -2,9 +2,9 @@ const router = require("express").Router();
 const Controller = require("../controllers/controller");
 const { authentication } = require("../middlewares/authentication");
 
-// router.get("/", (req, res) => {
-//   res.send("Hello SQR Fam!");
-// });
+router.get("/", (req, res) => {
+  res.send("Hello SQR Fam!");
+});
 
 router.post("/register", Controller.register);
 router.post("/login", Controller.login);
@@ -25,6 +25,8 @@ router.get("/qurbans/:id", Controller.showDetailQurban);
 
 // router.post("/order_histories", Controller.addOrderHistory); // admin
 // router.get("/order_histories", Controller.showAllOrderHistory); // admin
+
+router.post("/payment-notification", Controller.paymentNotification)
 
 router.use(authentication);
 
