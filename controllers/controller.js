@@ -410,18 +410,18 @@ class Controller {
   static async addOrder(req, res, next) {
     try {
       let data = req.body;
-      data = [
-        {
-          QurbanId: 8,
-          treeType: "Pine",
-          onBehalfOf: "Kel Budi",
-        },
-        {
-          QurbanId: 9,
-          treeType: "Pine",
-          onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky"
-        }
-      ] //data dummy for testing
+      // data = [
+      //   {
+      //     QurbanId: 8,
+      //     treeType: "Pine",
+      //     onBehalfOf: "Kel Budi",
+      //   },
+      //   {
+      //     QurbanId: 9,
+      //     treeType: "Pine",
+      //     onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky"
+      //   }
+      // ] //data dummy for testing
       if (!Array.isArray(data)){
         throw ({name: "notFound", message: "Qurban is required!"})
       }
@@ -626,8 +626,19 @@ class Controller {
           };
         }
         orderHistories = orderHistories.sort(sortById());
+        
+        orderHistories.map(el => {
+          console.log(el.videoUrl, "<<<< omo");
+          let check = el.videoUrl.split("=")
+          if (check.length > 1){
+            el.videoUrl = check[1]
+          } else {
+            el.videoUrl = el.videoUrl.split('/')[4]
+          }
+          return el 
+        })
       }
-
+      
       res.status(200).json({ order, orderDetails, orderHistories });
     } catch (error) {
       console.log(error, "<<< Error show detail from order");
