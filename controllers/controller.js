@@ -398,6 +398,7 @@ class Controller {
         where: {
           CustomerId: req.customer.id,
         },
+        order: [['id', 'desc']]
       });
 
       res.status(200).json(orders);
