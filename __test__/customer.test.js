@@ -146,8 +146,8 @@ describe("POST /login", () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toHaveProperty("access_token");
-    expect(response.body).toHaveProperty("username");
-    expect(response.body).toHaveProperty("email");
+    expect(response.body).toHaveProperty("username", "usertiga");
+    expect(response.body).toHaveProperty("email", "user3@gmail.com");
   });
 
   it("responds with 401 when login with wrong password", async () => {
@@ -171,6 +171,28 @@ describe("POST /login", () => {
     const response = await request(app).post("/login").send(body);
 
     expect(response.status).toBe(401);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  it("responds with 400 when login with missing email", async () => {
+    const body = {
+      password: "abc123",
+    };
+
+    const response = await request(app).post("/login").send(body);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  it("responds with 400 when login with missing password", async () => {
+    const body = {
+      email: "user3@gmail.com",
+    };
+
+    const response = await request(app).post("/login").send(body);
+
+    expect(response.status).toBe(400);
     expect(response.body).toHaveProperty("message");
   });
 });

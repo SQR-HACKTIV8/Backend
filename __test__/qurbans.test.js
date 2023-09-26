@@ -398,42 +398,31 @@ describe("GET /orders", () => {
 });
 
 describe("POST /orders", () => {
-  it.skip("responds with 201 when success", async () => {
-    const body = [
-      {
-        QurbanId: 5,
-        treeType: "Pine",
-        onBehalfOf: "Kel Budi",
-      },
-      {
-        QurbanId: 15,
-        treeType: "Pine",
-        onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky",
-      },
-    ];
-
+  it("responds with 201 when success", async () => {
+    const data = null;
+    // data is hardcoded in controller
     const response = await request(app)
       .post("/orders")
-      .set("access_token", access_token)
-      .send(body);
+      .send({ data })
+      .set("access_token", access_token);
 
     expect(response.status).toBe(201);
     expect(response.body).toBeInstanceOf(Object);
-    // expect(response.body).toHaveProperty("message");
-    // expect(response.body).toHaveProperty("findNewOrder");
-    // expect(response.body.findNewOrder).toHaveProperty("id");
-    // expect(response.body.findNewOrder).toHaveProperty("OrderId");
-    // expect(response.body.findNewOrder).toHaveProperty("CustomerId");
-    // expect(response.body.findNewOrder).toHaveProperty("totalPrice");
-    // expect(response.body.findNewOrder).toHaveProperty("totalQuantity");
-    // expect(response.body.findNewOrder).toHaveProperty("createdAt");
-    // expect(response.body.findNewOrder).toHaveProperty("updatedAt");
+    expect(response.body).toHaveProperty("message");
+    expect(response.body).toHaveProperty("findNewOrder");
+    expect(response.body.findNewOrder).toHaveProperty("id");
+    expect(response.body.findNewOrder).toHaveProperty("OrderId");
+    expect(response.body.findNewOrder).toHaveProperty("CustomerId");
+    expect(response.body.findNewOrder).toHaveProperty("totalPrice");
+    expect(response.body.findNewOrder).toHaveProperty("totalQuantity");
+    expect(response.body.findNewOrder).toHaveProperty("createdAt");
+    expect(response.body.findNewOrder).toHaveProperty("updatedAt");
   });
 
   it("responds with 401 when no access token provided", async () => {
     const body = [
       {
-        QurbanId: 5,
+        QurbanId: 2,
         treeType: "Pine",
         onBehalfOf: "Kel Budi",
       },
@@ -444,6 +433,72 @@ describe("POST /orders", () => {
     expect(response.status).toBe(401);
     expect(response.body).toBeInstanceOf(Object);
     expect(response.body).toHaveProperty("message");
+  });
+});
+
+describe("GET /orders/1", () => {
+  it("should successfully get all order details with access token", async () => {
+    const response = await request(app)
+      .get("/orders/1")
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("order");
+    expect(response.body).toHaveProperty("orderDetails");
+    expect(response.body).toHaveProperty("orderHistories");
+    expect(response.body.order).toHaveProperty("id");
+    expect(response.body.order).toHaveProperty("CustomerId");
+    expect(response.body.order).toHaveProperty("statusPayment");
+    expect(response.body.order).toHaveProperty("totalPrice");
+    expect(response.body.order).toHaveProperty("totalQuantity");
+    expect(response.body.order).toHaveProperty("OrderId");
+    expect(response.body.orderDetails[0]).toHaveProperty("id");
+    expect(response.body.orderDetails[0]).toHaveProperty("OrderId");
+    expect(response.body.orderDetails[0]).toHaveProperty("QurbanId");
+    expect(response.body.orderDetails[0]).toHaveProperty("onBehalfOf");
+    expect(response.body.orderDetails[0]).toHaveProperty("Qurban");
+  });
+
+  it("shouldn't successfully get all order details with wrong access token", async () => {
+    const response = await request(app)
+      .get("/orders/1")
+      .set("access_token", wrong_access_token);
+
+    expect(response.status).toBe(401);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message");
+  });
+});
+
+describe("DELETE /orders/1", () => {
+  it("should successfully delete order with access token", async () => {
+    const response = await request(app)
+      .delete("/orders/1")
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  it("shouldn't successfully delete order with wrong access token", async () => {
+    const response = await request(app)
+      .delete("/orders/1")
+      .set("access_token", wrong_access_token);
+
+    expect(response.status).toBe(401);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message");
+  });
+
+  it("shouldn't successfully delete order without param", async () => {
+    const response = await request(app)
+      .delete("/orders")
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toBeInstanceOf(Object);
   });
 });
 
