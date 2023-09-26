@@ -602,6 +602,7 @@ class Controller {
         where: {
           OrderId,
         },
+        order: [['id', 'desc']]
       });
 
       let orderHistories = [];
@@ -617,9 +618,9 @@ class Controller {
         function sortById() {
           return function (el1, el2) {
             if (el1.id < el2.id) {
-              return -1;
-            } else if (el1.id > el2.id) {
               return 1;
+            } else if (el1.id > el2.id) {
+              return -1;
             } else {
               return 0;
             }
@@ -628,7 +629,6 @@ class Controller {
         orderHistories = orderHistories.sort(sortById());
         
         orderHistories.map(el => {
-          console.log(el.videoUrl, "<<<< omo");
           let check = el.videoUrl.split("=")
           if (check.length > 1){
             el.videoUrl = check[1]
@@ -638,7 +638,7 @@ class Controller {
           return el 
         })
       }
-      
+
       res.status(200).json({ order, orderDetails, orderHistories });
     } catch (error) {
       console.log(error, "<<< Error show detail from order");
