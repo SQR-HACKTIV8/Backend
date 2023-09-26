@@ -36,7 +36,6 @@ router.get("/orders", Controller.showAllOrders);
 router.post("/orders", Controller.addOrder);
 router.delete("/orders/:id", Controller.deleteOrder);
 router.get("/orders/:id", Controller.showDetailOrder);
-router.patch("/orders/:id", Controller.updatePaymentStatus);
 
 router.post("/token-midtrans", Controller.generateTokenMidtarns);
 
