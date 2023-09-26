@@ -29,8 +29,11 @@ function errorHandler(err, req, res, next) {
     status = 404;
     message = err.message;
   } else if (err.name === "AxiosError") {
-    status = err.status;
-    message = err.message;
+    status = err.status
+    message = err.message
+  } else if (err.name === "MidtransError") {
+    status = err.httpStatusCode
+    message = err.ApiResponse.error_messages[0]
   }
 
   res.status(status).json({ message });
