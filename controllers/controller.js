@@ -408,10 +408,10 @@ class Controller {
 
   static async addOrder(req, res, next) {
     try {
-      let data = req.body;
+      let { data } = req.body;
       data = [
         {
-          QurbanId: 7,
+          QurbanId: 1,
           treeType: "Pine",
           onBehalfOf: "Kel Budi",
         },
@@ -436,35 +436,38 @@ class Controller {
         if (!el.QurbanId){
           throw ({name: "notFound", message: "Qurban is required!"})
         }
-        if (!el.treeType){
-          throw ({name: "notFound", message: "Tree type is required!"})
+        if (!el.treeType) {
+          throw { name: "notFound", message: "Tree type is required!" };
         }
-        if (!el.onBehalfOf){
-          throw ({name: "notFound", message: "Sender's name is required!"})
+        if (!el.onBehalfOf) {
+          throw { name: "notFound", message: "Sender's name is required!" };
         }
         reforestationData.push({
           treeType: el.treeType,
           quantity: 1,
-          createdAt : new Date(),
-          updatedAt : new Date()
-        })
-        qurbansId.push (el.QurbanId)
-        delete el.treeType
-        el.OrderId = OrderId
-        el.createdAt = el.updatedAt = new Date()
-        return el
-      })
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        qurbansId.push(el.QurbanId);
+        delete el.treeType;
+        el.OrderId = OrderId;
+        el.createdAt = el.updatedAt = new Date();
+        return el;
+      });
 
       const findQurbans = await Qurban.findAll({
-        attributes: ['id', 'isBooked', 'name'],
+        attributes: ["id", "isBooked", "name"],
         where: {
-          id: qurbansId
-        }
-      })
+          id: qurbansId,
+        },
+      });
 
-      findQurbans.forEach(el => {
-        if (el.dataValues.isBooked){
-          throw ({name: "notFound", message: `${el.dataValues.name} is booked! Choose another one`})
+      findQurbans.forEach((el) => {
+        if (el.dataValues.isBooked) {
+          throw {
+            name: "notFound",
+            message: `${el.dataValues.name} is booked! Choose another one`,
+          };
         }
       });
 
@@ -524,8 +527,6 @@ class Controller {
         }
       );
 
-      await redis.del("sqr_orders");
-      
       res.status(201).json({
         message: `Order with id ${newOrder.id} has been created`,
         findNewOrder,
@@ -553,21 +554,16 @@ class Controller {
       const orderDetails = await OrderDetail.findAll({
         where: {
           OrderId: order.OrderId,
-        }
-      })
+        },
+      });
 
-      const qurbansId = orderDetails.map(el => {
-        return el.QurbanId
-      })
+      const qurbansId = orderDetails.map((el) => {
+        return el.QurbanId;
+      });
 
       await Order.destroy({ where: { id: orderId } });
 
-      await Qurban.update(
-        { isBooked: false },
-        { where: { id: qurbansId } }
-      )
-
-      await redis.del("sqr_orders");
+      await Qurban.update({ isBooked: false }, { where: { id: qurbansId } });
 
       res.status(200).json({
         message: `Order with id ${order.OrderId} canceled succesfully.`,
@@ -592,35 +588,34 @@ class Controller {
         throw { name: "notFound", message: "Order not found!" };
       }
 
-      const OrderId = order.dataValues.OrderId
+      const OrderId = order.dataValues.OrderId;
       let orderDetails = await OrderDetail.findAll({
         include: [
           {
             model: Qurban,
-            attributes: ['price']
+            attributes: ["price"],
           },
           {
             model: OrderHistory,
-            attributes: {exclude: ['createdAt', 'updatedAt']}
+            attributes: { exclude: ["createdAt", "updatedAt"] },
           },
-      ],
-        attributes: {exclude: ['createdAt', 'updatedAt']},
+        ],
+        attributes: { exclude: ["createdAt", "updatedAt"] },
         where: {
-          OrderId
-        }
-      })
-      
-      let orderHistories = []
-      orderDetails = orderDetails.map(el => {
-        el.dataValues.OrderHistories.forEach(e => {
-          orderHistories.push(e.dataValues)
-        })
-        delete el.dataValues.OrderHistories
-        return el
+          OrderId,
+        },
+      });
 
-      })
+      let orderHistories = [];
+      orderDetails = orderDetails.map((el) => {
+        el.dataValues.OrderHistories.forEach((e) => {
+          orderHistories.push(e.dataValues);
+        });
+        delete el.dataValues.OrderHistories;
+        return el;
+      });
 
-      if (orderHistories.length > 0){
+      if (orderHistories.length > 0) {
         function sortById() {
           return function (el1, el2) {
             if (el1.id < el2.id) {
@@ -632,10 +627,10 @@ class Controller {
             }
           };
         }
-        orderHistories = orderHistories.sort(sortById())
+        orderHistories = orderHistories.sort(sortById());
       }
 
-      res.status(200).json({order, orderDetails, orderHistories});
+      res.status(200).json({ order, orderDetails, orderHistories });
     } catch (error) {
       console.log(error, "<<< Error show detail from order");
       next(error);
@@ -658,7 +653,7 @@ class Controller {
       if (findOrder.statusPayment){
         throw ({name: 'found', message: `Order with id ${OrderId} already paid`})
       }
-      
+
       let snap = new midtransClient.Snap({
           isProduction : false,
           serverKey : process.env.MIDTRANS_SERVER_KEY
