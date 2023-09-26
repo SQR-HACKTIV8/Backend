@@ -1,5 +1,5 @@
 const { comparePassword } = require("../helpers/bcryptjs");
-const { createToken, createTokenPdf } = require("../helpers/jwt");
+const { createToken } = require("../helpers/jwt");
 const {
   Category,
   Qurban,
@@ -13,8 +13,7 @@ const {
 const { Op } = require("sequelize");
 const redis = require("../config/redis");
 const midtransClient = require("midtrans-client");
-const sendEmailNodemailer = require("../helpers/nodemailer");
-const axios = require("axios");
+const createInvoice = require("../helpers/createInvoice");
 
 class Controller {
   static async register(req, res, next) {
@@ -66,6 +65,8 @@ class Controller {
         id: customer.id,
       };
       const access_token = createToken(payload);
+
+      delete customer.dataValues.password
 
       res.status(200).json({
         access_token,
@@ -408,19 +409,19 @@ class Controller {
 
   static async addOrder(req, res, next) {
     try {
-      let { data } = req.body;
-      data = [
-        {
-          QurbanId: 1,
-          treeType: "Pine",
-          onBehalfOf: "Kel Budi",
-        },
-        {
-          QurbanId: 20,
-          treeType: "Pine",
-          onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky"
-        }
-      ] //data dummy for testing
+      let data = req.body;
+      // data = [
+      //   {
+      //     QurbanId: 7,
+      //     treeType: "Pine",
+      //     onBehalfOf: "Kel Budi",
+      //   },
+      //   {
+      //     QurbanId: 20,
+      //     treeType: "Pine",
+      //     onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky"
+      //   }
+      // ] //data dummy for testing
       if (!Array.isArray(data)){
         throw ({name: "notFound", message: "Qurban is required!"})
       }
@@ -462,12 +463,9 @@ class Controller {
         },
       });
 
-      findQurbans.forEach((el) => {
-        if (el.dataValues.isBooked) {
-          throw {
-            name: "notFound",
-            message: `${el.dataValues.name} is booked! Choose another one`,
-          };
+      findQurbans.forEach(el => {
+        if (el.dataValues.isBooked){
+          throw ({name: "notFound", message: "Qurban is booked! Choose another one"})
         }
       });
 
@@ -680,92 +678,6 @@ class Controller {
     }
   }
 
-  static async updatePaymentStatus(req, res, next) {
-    try {
-      const { id } = req.params;
-      const findOrder = await Order.findOne({
-        where: {
-          id,
-          CustomerId: req.customer.id,
-        },
-      });
-
-      if (!findOrder) {
-        throw { name: "notFound", message: "Order not found!" };
-      } 
-
-      const orderDetails = await OrderDetail.findAll({
-        where: {
-          OrderId: findOrder.OrderId,
-        },
-        include: {
-          model: Qurban,
-          attributes: ["name", "price"],
-        },
-      });
-
-      const lineItems = orderDetails.map((item) => ({
-        on_behalf_of: item.onBehalfOf,
-        price: item.Qurban.price,
-        qurban_name: item.Qurban.name,
-      }));
-
-      const pdfData = {
-        template: {
-          id: 795521,
-          data: {
-            invoice_number: findOrder.OrderId,
-            email_id: req.customer.email,
-            name: req.customer.username,
-            line_items: lineItems,
-            total_price: findOrder.totalPrice,
-          },
-        },
-        format: "pdf",
-        output: "url",
-        name: "SQR Invoice",
-      };
-      const token_pdf = createTokenPdf();
-      const { data } = await axios.post(
-        "https://us1.pdfgeneratorapi.com/api/v4/documents/generate",
-        pdfData,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-            Authorization: `Bearer ${token_pdf}`,
-          },
-        }
-      );
-
-      let email = req.customer.email;
-      let pdfLink = data.response;
-
-      // email = "jessiino6@gmail.com"
-      sendEmailNodemailer(
-        email,
-        pdfLink,
-        findOrder.OrderId,
-        req.customer.username
-      );
-
-      res.status(200).json({
-        message: `Payment with order id ${findOrder.OrderId} success`,
-      });
-    } catch (error) {
-      console.log(error, "<<< Error update status payment");
-
-      if (error.name === "AxiosError") {
-        return next({
-          name: "AxiosError",
-          status: error.response.status,
-          message: error.response.data.message,
-        });
-      }
-      next(error);
-    }
-  }
-
   static async paymentNotification(req, res, next){
     try {
       let notificationJson = req.body
@@ -787,6 +699,10 @@ class Controller {
         where: {
           OrderId: orderId
         },
+        include: {
+          model: Customer,
+          attributes: ["email", "username"]
+        }
       });
 
       if (!findOrder) {
@@ -803,10 +719,11 @@ class Controller {
               },
             }
           );
+          createInvoice(findOrder.OrderId, findOrder.Customer.username, findOrder.Customer.email, findOrder.totalPrice)    
+          
           res.status(200).json({
-            status: "success",
-            message: `Payment with order id ${findOrder.OrderId} success`,
-          })          
+            status: "success"
+          }) 
         }
       } else if (transactionStatus == 'settlement'){
         await Order.update(
@@ -817,24 +734,22 @@ class Controller {
             },
           }
         );
-        res.status(200).json({
-          status: "success",
-          message: `Payment with order id ${findOrder.OrderId} success`,
-        }) 
+
+          createInvoice(findOrder.OrderId, findOrder.Customer.username, findOrder.Customer.email, findOrder.totalPrice) 
+
+          res.status(200).json({
+            status: "success"
+          }) 
       } else if (transactionStatus == 'cancel' ||
         transactionStatus == 'deny' ||
         transactionStatus == 'expire'){
 
         res.status(200).json({
-          status: "failure",
-          OrderId: findOrder.OrderId,
-          totalPrice: findOrder.totalPrice,
-          message: `Payment with order id ${findOrder.OrderId} failure`,
+          status: "failure"
         }) 
       } else if (transactionStatus == 'pending'){
         res.status(200).json({
-          status: "pending",
-          message: `Payment with order id ${findOrder.OrderId} pending`,
+          status: "pending"
         })
       }
     } catch (error) {
