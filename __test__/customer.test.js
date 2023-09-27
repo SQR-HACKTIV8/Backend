@@ -197,6 +197,24 @@ describe("POST /login", () => {
     expect(response.status).toBe(400);
     expect(response.body).toHaveProperty("message");
   });
+
+  it("responds with 400 when registering with a password less than 5 characters", async () => {
+    const body = {
+      username: "testuser",
+      email: "testuser@example.com",
+      password: "1234",
+      phoneNumber: "123456789",
+      imageUrl: "http://example.com/image.jpg",
+    };
+
+    const response = await request(app).post("/register").send(body);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty(
+      "message",
+      "Minimal 5 character for your password"
+    );
+  });
 });
 
 describe("GET /customers", () => {

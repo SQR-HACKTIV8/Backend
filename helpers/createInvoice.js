@@ -1,13 +1,13 @@
 const { createTokenPdf } = require("./jwt");
 const sendEmailNodemailer = require("./nodemailer");
 const axios = require("axios");
-const {OrderDetail, Qurban} = require("../models")
+const { OrderDetail, Qurban } = require("../models");
 
-async function createInvoice (OrderId, username, email, totalPrice) {
+async function createInvoice(OrderId, username, email, totalPrice) {
   try {
     const orderDetails = await OrderDetail.findAll({
       where: {
-        OrderId
+        OrderId,
       },
       include: {
         model: Qurban,
@@ -52,13 +52,7 @@ async function createInvoice (OrderId, username, email, totalPrice) {
     let pdfLink = data.response;
 
     // email = "jessiino6@gmail.com"
-    sendEmailNodemailer(
-      email,
-      pdfLink,
-      OrderId,
-      username
-    );
-
+    sendEmailNodemailer(email, pdfLink, OrderId, username);
   } catch (error) {
     console.log(error, "<<< Error update status payment");
 
@@ -67,10 +61,10 @@ async function createInvoice (OrderId, username, email, totalPrice) {
         name: "AxiosError",
         status: error.response.status,
         message: error.response.data.message,
-      }
+      };
     }
-    throw (error);
+    throw error;
   }
 }
 
-module.exports = createInvoice
+module.exports = createInvoice;
