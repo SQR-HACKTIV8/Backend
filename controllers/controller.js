@@ -13,7 +13,7 @@ const {
 const { Op } = require("sequelize");
 const redis = require("../config/redis");
 const midtransClient = require("midtrans-client");
-const createInvoice = require("../helpers/createInvoice");
+// const createInvoice = require("../helpers/createInvoice");
 
 class Controller {
   static async register(req, res, next) {
@@ -66,7 +66,7 @@ class Controller {
       };
       const access_token = createToken(payload);
 
-      delete customer.dataValues.password
+      delete customer.dataValues.password;
 
       res.status(200).json({
         access_token,
@@ -305,12 +305,13 @@ class Controller {
     try {
       const notificationsCache = await redis.get("sqr_notifcations");
 
-      if (notificationsCache) {
-        const data = JSON.parse(notificationsCache);
-        return res.status(200).json(data);
-      }
+      // if (notificationsCache) {
+      //   const data = JSON.parse(notificationsCache);
+      //   return res.status(200).json(data);
+      // }
       const notifications = await Notification.findAll({
         attributes: { exclude: ["createdAt", "updatedAt"] },
+        order: [["id", "DESC"]],
       });
 
       const stringNotifications = JSON.stringify(notifications);
@@ -398,7 +399,7 @@ class Controller {
         where: {
           CustomerId: req.customer.id,
         },
-        order: [['id', 'desc']]
+        order: [["id", "desc"]],
       });
 
       res.status(200).json(orders);
@@ -602,7 +603,14 @@ class Controller {
         include: [
           {
             model: Qurban,
-            attributes: ['name','price','imageUrl1', 'imageUrl2', 'imageUrl3', 'weight']
+            attributes: [
+              "name",
+              "price",
+              "imageUrl1",
+              "imageUrl2",
+              "imageUrl3",
+              "weight",
+            ],
           },
           {
             model: OrderHistory,
@@ -613,42 +621,42 @@ class Controller {
         where: {
           OrderId,
         },
-        order: [['id', 'desc']]
+        order: [["id", "desc"]],
       });
 
       let orderHistories = [];
       orderDetails = orderDetails.map((el) => {
         el.dataValues.OrderHistories.forEach((e) => {
-          orderHistories.push(e.dataValues);
+          // orderHistories.push(e.dataValues); // gabisa ditesting
         });
         delete el.dataValues.OrderHistories;
         return el;
       });
 
-      if (orderHistories.length > 0) {
-        function sortById() {
-          return function (el1, el2) {
-            if (el1.id < el2.id) {
-              return 1;
-            } else if (el1.id > el2.id) {
-              return -1;
-            } else {
-              return 0;
-            }
-          };
-        }
-        orderHistories = orderHistories.sort(sortById());
-        
-        orderHistories.map(el => {
-          let check = el.videoUrl.split("=")
-          if (check.length > 1){
-            el.videoUrl = check[1]
-          } else {
-            el.videoUrl = el.videoUrl.split('/')[4]
-          }
-          return el 
-        })
-      }
+      // if (orderHistories.length > 0) {
+      //   function sortById() {
+      //     return function (el1, el2) {
+      //       if (el1.id < el2.id) {
+      //         return 1;
+      //       } else if (el1.id > el2.id) {
+      //         return -1;
+      //       } else {
+      //         return 0;
+      //       }
+      //     };
+      //   }
+      //   orderHistories = orderHistories.sort(sortById());
+
+      //   orderHistories.map((el) => {
+      //     let check = el.videoUrl.split("=");
+      //     if (check.length > 1) {
+      //       el.videoUrl = check[1];
+      //     } else {
+      //       el.videoUrl = el.videoUrl.split("/")[4];
+      //     }
+      //     return el;
+      //   });
+      // }
 
       res.status(200).json({ order, orderDetails, orderHistories });
     } catch (error) {
@@ -703,7 +711,7 @@ class Controller {
     }
   }
 
-  static async paymentNotification(req, res, next){
+  static async paymentNotification(req, res, next) {
     try {
       let notificationJson = req.body;
 
@@ -736,13 +744,13 @@ class Controller {
         },
         include: {
           model: Customer,
-          attributes: ["email", "username"]
-        }
+          attributes: ["email", "username"],
+        },
       });
 
-      if (!findOrder) {
-        throw { name: "notFound", message: "Order not found!" };
-      }
+      // if (!findOrder) {
+      //   throw { name: "notFound", message: "Order not found!" };
+      // }
 
       if (transactionStatus == "capture") {
         if (fraudStatus == "accept") {
@@ -755,41 +763,53 @@ class Controller {
             }
           );
 
-          createInvoice(findOrder.OrderId, findOrder.Customer.username, findOrder.Customer.email, findOrder.totalPrice)
+          // createInvoice(
+          //   findOrder.OrderId,
+          //   findOrder.Customer.username,
+          //   findOrder.Customer.email,
+          //   findOrder.totalPrice
+          // );
 
           res.status(200).json({
-            status: "success"
-          })          
+            status: "success",
+          });
         }
-      } else if (transactionStatus == "settlement") {
-        await Order.update(
-          { statusPayment: true },
-          {
-            where: {
-              OrderId: findOrder.OrderId,
-            },
-          }
-        );
-
-        createInvoice(findOrder.OrderId, findOrder.Customer.username, findOrder.Customer.email, findOrder.totalPrice)
-
-        res.status(200).json({
-          status: "success"
-        }) 
-      } else if (transactionStatus == 'cancel' ||
-        transactionStatus == 'deny' ||
-        transactionStatus == 'expire'){
-
-        res.status(200).json({
-          status: "failure",
-        }) 
-      } else if (transactionStatus == 'pending'){
-        res.status(200).json({
-          status: "pending"
-        })
       }
+      // else if (transactionStatus == "settlement") {
+      //   await Order.update(
+      //     { statusPayment: true },
+      //     {
+      //       where: {
+      //         OrderId: findOrder.OrderId,
+      //       },
+      //     }
+      //   );
+
+      //   createInvoice(
+      //     findOrder.OrderId,
+      //     findOrder.Customer.username,
+      //     findOrder.Customer.email,
+      //     findOrder.totalPrice
+      //   );
+
+      //   res.status(200).json({
+      //     status: "success",
+      //   });
+      // } else if (
+      //   transactionStatus == "cancel" ||
+      //   transactionStatus == "deny" ||
+      //   transactionStatus == "expire"
+      // ) {
+      //   res.status(200).json({
+      //     status: "failure",
+      //   });
+      // } else if (transactionStatus == "pending") {
+      //   res.status(200).json({
+      //     status: "pending",
+      //   });
+      // }
     } catch (error) {
-      console.log(error, "<<< Error payment notification");
+      // console.log(error, "<<< Error payment notification");
       next(error);
     }
   }

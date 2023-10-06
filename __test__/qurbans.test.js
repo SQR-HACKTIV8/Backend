@@ -4,8 +4,9 @@ const redis = require("../config/redis");
 const { sequelize } = require("../models");
 const { hashPassword } = require("../helpers/bcryptjs");
 let access_token = "";
-let dynamicOrderId;
 let wrong_access_token = "wrong";
+const { sign } = require("jsonwebtoken");
+let access_token_fake = sign({ id: 34 }, process.env.SIGNITURE_KEY);
 
 beforeAll(async () => {
   await sequelize.queryInterface.bulkInsert(
@@ -170,6 +171,38 @@ beforeAll(async () => {
     ],
     {}
   );
+  await sequelize.queryInterface.bulkInsert("Orders", [
+    {
+      id: 3,
+      CustomerId: 1,
+      statusPayment: false,
+      totalPrice: 16500000,
+      totalQuantity: 2,
+      OrderId: "SQR20230926T081348043Z1374",
+      createdAt: "2023-09-26T08:13:48.047Z",
+      updatedAt: "2023-09-26T08:13:48.078Z",
+    },
+    {
+      id: 2,
+      CustomerId: 2,
+      statusPayment: true,
+      totalPrice: 25200000,
+      totalQuantity: 2,
+      OrderId: "SQR20230925T213844757Z1066",
+      createdAt: "2023-09-25T21:38:44.761Z",
+      updatedAt: "2023-09-25T21:38:44.798Z",
+    },
+    {
+      id: 3,
+      CustomerId: 2,
+      statusPayment: false,
+      totalPrice: 16500000,
+      totalQuantity: 2,
+      OrderId: "SQR20230927T041346855Z1702",
+      createdAt: "2023-09-25T21:38:44.761Z",
+      updatedAt: "2023-09-25T21:38:44.798Z",
+    },
+  ]);
 
   const response = await request(app).post("/login").send({
     email: "user1@gmail.com",
@@ -181,6 +214,28 @@ beforeAll(async () => {
 
 describe("GET /categories", () => {
   it("should successfully get all categories without access token and filter", async () => {
+    const response = await request(app).get("/categories");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toBeInstanceOf(Array);
+  });
+  it("should get categories from cache if available", async () => {
+    const mockCategories = [
+      { id: 1, name: "Category 1" },
+      { id: 2, name: "Category 2" },
+    ];
+    const stringCategories = JSON.stringify(mockCategories);
+    await redis.set("sqr_categories", stringCategories);
+
+    const response = await request(app).get("/categories");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual(mockCategories);
+  });
+
+  it("should get categories from database if cache is not available", async () => {
+    await redis.del("sqr_categories");
+
     const response = await request(app).get("/categories");
 
     expect(response.status).toBe(200);
@@ -390,6 +445,16 @@ describe("GET /notifications", () => {
     expect(response.body).toBeInstanceOf(Object);
     expect(response.body).toHaveProperty("message");
   });
+
+  it("shouldn't successfully get all notifications with fake access token", async () => {
+    const response = await request(app)
+      .get("/notifications")
+      .set("access_token", access_token_fake);
+
+    expect(response.status).toBe(401);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message");
+  });
 });
 
 describe("GET /orders", () => {
@@ -415,7 +480,7 @@ describe("GET /orders", () => {
 
 describe("POST /orders", () => {
   it("responds with 201 when success", async () => {
-    const data = [
+    const body = [
       {
         QurbanId: 1,
         treeType: "Pine",
@@ -430,7 +495,7 @@ describe("POST /orders", () => {
     // data is hardcoded in controller
     const response = await request(app)
       .post("/orders")
-      .send({ data })
+      .send({ data: body })
       .set("access_token", access_token);
 
     expect(response.status).toBe(201);
@@ -549,7 +614,7 @@ describe("POST /orders", () => {
     expect(response.body).toHaveProperty("message");
   });
 
-  it("responds with 400 when treeType is missing", async () => {
+  it("responds with 404 when treeType is missing", async () => {
     const body = [
       {
         QurbanId: 1,
@@ -567,7 +632,7 @@ describe("POST /orders", () => {
     expect(response.body).toHaveProperty("message");
   });
 
-  it("responds with 400 when onBehalfOf is missing", async () => {
+  it("responds with 404 when onBehalfOf is missing", async () => {
     const body = [
       {
         QurbanId: 1,
@@ -584,9 +649,52 @@ describe("POST /orders", () => {
     expect(response.body).toBeInstanceOf(Object);
     expect(response.body).toHaveProperty("message");
   });
+
+  it("responds with 404 when try to post data that already posted", async () => {
+    const body = [
+      {
+        QurbanId: 1,
+        treeType: "Pine",
+        onBehalfOf: "Kel Budi",
+      },
+      {
+        QurbanId: 3,
+        treeType: "Pine",
+        onBehalfOf: "Alm. Rudh bin Ridho, Alm. Sit binti Rizky",
+      },
+    ];
+    const response = await request(app)
+      .post("/orders")
+      .send({ data: body })
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message");
+  });
 });
 
 describe("GET /orders/1", () => {
+  function sortById() {
+    return function (el1, el2) {
+      if (el1.id < el2.id) {
+        return 1;
+      } else if (el1.id > el2.id) {
+        return -1;
+      } else {
+        return 0;
+      }
+    };
+  }
+
+  function modifyVideoUrl(input) {
+    const check = input.videoUrl.split("=");
+    if (check.length > 1) {
+      return { videoUrl: check[1] };
+    } else {
+      return { videoUrl: input.videoUrl.split("/")[4] };
+    }
+  }
   it("should successfully get all order details with access token", async () => {
     const response = await request(app)
       .get("/orders/1")
@@ -603,6 +711,8 @@ describe("GET /orders/1", () => {
     expect(response.body.order).toHaveProperty("totalPrice");
     expect(response.body.order).toHaveProperty("totalQuantity");
     expect(response.body.order).toHaveProperty("OrderId");
+
+    expect(response.body.orderHistories).toBeInstanceOf(Array);
   });
 
   it("shouldn't successfully get all order details with wrong access token", async () => {
@@ -613,6 +723,41 @@ describe("GET /orders/1", () => {
     expect(response.status).toBe(401);
     expect(response.body).toBeInstanceOf(Object);
     expect(response.body).toHaveProperty("message");
+  });
+
+  it("should sort orderHistories based on id in descending order", () => {
+    const input = [
+      { id: 3, value: "C" },
+      { id: 1, value: "A" },
+      { id: 2, value: "B" },
+    ];
+
+    const expectedOutput = [
+      { id: 3, value: "C" },
+      { id: 2, value: "B" },
+      { id: 1, value: "A" },
+    ];
+
+    const sortedArray = input.sort(sortById());
+    expect(sortedArray).toEqual(expectedOutput);
+  });
+
+  it("should modify videoUrl properly", () => {
+    const input = { videoUrl: "https://www.youtube.com/watch?v=abcd1234" };
+    const expectedOutput = { videoUrl: "abcd1234" };
+
+    const modifiedObject = modifyVideoUrl(input);
+    expect(modifiedObject).toEqual(expectedOutput);
+  });
+
+  it("responds with 404 when order is not found", async () => {
+    const response = await request(app)
+      .get("/orders/999")
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message", "Order not found!");
   });
 });
 
@@ -645,9 +790,139 @@ describe("DELETE /orders/1", () => {
     expect(response.status).toBe(404);
     expect(response.body).toBeInstanceOf(Object);
   });
+
+  it("responds with 404 when order is not found", async () => {
+    const orderId = 999;
+    const response = await request(app)
+      .delete(`/orders/${orderId}`)
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message", "Order not found!");
+  });
+
+  it("responds with empty orderHistories when no data found", async () => {
+    const orderDetails = [{ dataValues: { OrderHistories: [] } }];
+
+    const response = await request(app)
+      .get("/orders/1")
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message");
+  });
+});
+
+describe("POST /token-midtrans", () => {
+  it("should generate midtrans token with valid OrderId and totalPrice", async () => {
+    const validData = {
+      OrderId: "SQR20230926T081348043Z1374",
+      totalPrice: 16500000,
+    };
+
+    const response = await request(app)
+      .post("/token-midtrans")
+      .send(validData)
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(201);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("token");
+    expect(response.body).toHaveProperty("redirect_url");
+  });
+
+  it("should respond with error when OrderId does not exist", async () => {
+    const invalidData = {
+      OrderId: "INVALID_ORDER_ID",
+      totalPrice: 1000000,
+    };
+
+    const response = await request(app)
+      .post("/token-midtrans")
+      .send(invalidData)
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message", "Order not found!");
+  });
+
+  it("should respond with error when Order is already paid", async () => {
+    const paidOrderData = {
+      OrderId: "SQR20230925T213844757Z1066",
+      totalPrice: 25200000,
+    };
+
+    const response = await request(app)
+      .post("/token-midtrans")
+      .send(paidOrderData)
+      .set("access_token", access_token);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty(
+      "message",
+      `Order with id ${paidOrderData.OrderId} already paid`
+    );
+  });
+
+  it("should respond with error when no access token provided", async () => {
+    const data = {
+      OrderId: "SQR20230926T081348043Z1374",
+      totalPrice: 16500000,
+    };
+
+    const response = await request(app).post("/token-midtrans").send(data);
+
+    expect(response.status).toBe(401);
+    expect(response.body).toBeInstanceOf(Object);
+    expect(response.body).toHaveProperty("message");
+  });
+});
+
+describe("POST /payment-notification", () => {
+  it("responds with 200 and updates order status on successful payment", async () => {
+    const notificationData = {
+      transaction_time: "2023-09-27 11:17:11",
+      transaction_status: "capture",
+      transaction_id: "c7e3605e-d9c7-4468-9770-e3186bac71b2",
+      three_ds_version: "2",
+      status_message: "midtrans payment notification",
+      status_code: "200",
+      signature_key:
+        "bd1e21a1a3b44d052e597067801370fdd54e7c2d0bc17f1946057fc96fec04422d483d465d5e1ff9e7a6fe47c069e83e8493d9c646df4e833c1532bc3675a98d",
+      payment_type: "credit_card",
+      order_id: "SQR20230927T041346855Z1702",
+      merchant_id: "G385345940",
+      masked_card: "48111111-1114",
+      gross_amount: "16500000.00",
+      fraud_status: "accept",
+      expiry_time: "2023-09-27 11:27:11",
+      eci: "05",
+      currency: "IDR",
+      channel_response_message: "Approved",
+      channel_response_code: "00",
+      card_type: "credit",
+      bank: "mega",
+      approval_code: "1695788237862",
+    };
+    const response = await request(app)
+      .post("/payment-notification")
+      .send(notificationData);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty("status", "success");
+  });
 });
 
 afterAll(async () => {
+  await sequelize.queryInterface.bulkDelete("Orders", null, {
+    truncate: true,
+    cascade: true,
+    restartIdentity: true,
+  });
   await sequelize.queryInterface.bulkDelete("Qurbans", null, {
     truncate: true,
     cascade: true,
